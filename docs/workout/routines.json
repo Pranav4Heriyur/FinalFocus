@@ -1,0 +1,494 @@
+{
+  "program": {
+    "id": "strength_conditioning_4day",
+    "name": "Strength & Conditioning \u2014 4-Day Split",
+    "type": "hybrid",
+    "gym_routines": [
+      {
+        "id": "G1",
+        "name": "Lower Body A",
+        "focus": "Quads",
+        "estimated_minutes": 60,
+        "exercises": [
+          {
+            "name": "Leg Press",
+            "sets": 4,
+            "reps": "8-10",
+            "rest_seconds": 150,
+            "equipment": "Machine",
+            "muscles": [
+              "Quads"
+            ]
+          },
+          {
+            "name": "Hack Squat (or Smith Machine Squat)",
+            "sets": 3,
+            "reps": "8-10",
+            "rest_seconds": 120,
+            "equipment": "Machine",
+            "muscles": [
+              "Quads"
+            ]
+          },
+          {
+            "name": "Dumbbell Romanian Deadlift",
+            "sets": 3,
+            "reps": "8-10",
+            "rest_seconds": 120,
+            "equipment": "Dumbbells",
+            "muscles": [
+              "Hamstrings",
+              "Glutes"
+            ]
+          },
+          {
+            "name": "Lying / Seated Leg Curl",
+            "sets": 3,
+            "reps": "10-12",
+            "rest_seconds": 90,
+            "equipment": "Machine",
+            "muscles": [
+              "Hamstrings"
+            ]
+          },
+          {
+            "name": "Standing / Seated Calf Raise",
+            "sets": 3,
+            "reps": "12-15",
+            "rest_seconds": 60,
+            "equipment": "Machine",
+            "muscles": [
+              "Calves"
+            ]
+          },
+          {
+            "name": "Farmer's Carry",
+            "sets": 3,
+            "reps": "30-40 m",
+            "rest_seconds": 90,
+            "equipment": "Dumbbells",
+            "muscles": [
+              "Full body"
+            ],
+            "type": "carry"
+          }
+        ]
+      },
+      {
+        "id": "G2",
+        "name": "Upper Body A",
+        "focus": "Strength",
+        "estimated_minutes": 60,
+        "exercises": [
+          {
+            "name": "Weighted / Assisted Pull-up or Lat Pulldown",
+            "sets": 4,
+            "reps": "5-8",
+            "rest_seconds": 150,
+            "equipment": "Machine / Bodyweight",
+            "muscles": [
+              "Back"
+            ]
+          },
+          {
+            "name": "Machine Chest Press / Dumbbell Bench Press",
+            "sets": 4,
+            "reps": "6-8",
+            "rest_seconds": 150,
+            "equipment": "Machine / Dumbbells",
+            "muscles": [
+              "Chest"
+            ]
+          },
+          {
+            "name": "Seated Shoulder Press",
+            "sets": 3,
+            "reps": "8-10",
+            "rest_seconds": 120,
+            "equipment": "Machine / Dumbbells",
+            "muscles": [
+              "Shoulders"
+            ]
+          },
+          {
+            "name": "Seated Cable / Chest-supported Row",
+            "sets": 3,
+            "reps": "8-10",
+            "rest_seconds": 90,
+            "equipment": "Cable / Machine",
+            "muscles": [
+              "Back"
+            ]
+          },
+          {
+            "name": "Lateral Raise",
+            "sets": 3,
+            "reps": "12-15",
+            "rest_seconds": 0,
+            "equipment": "Dumbbells / Cable",
+            "muscles": [
+              "Shoulders"
+            ],
+            "superset": "A"
+          },
+          {
+            "name": "Triceps Rope Pushdown",
+            "sets": 3,
+            "reps": "10-12",
+            "rest_seconds": 75,
+            "equipment": "Cable",
+            "muscles": [
+              "Triceps"
+            ],
+            "superset": "A"
+          },
+          {
+            "name": "Dumbbell / Cable Curl",
+            "sets": 2,
+            "reps": "10-12",
+            "rest_seconds": 60,
+            "equipment": "Dumbbells / Cable",
+            "muscles": [
+              "Biceps"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "G3",
+        "name": "Lower Body B",
+        "focus": "Hamstrings \u2022 Glutes",
+        "estimated_minutes": 60,
+        "exercises": [
+          {
+            "name": "Hip Thrust",
+            "sets": 4,
+            "reps": "8-10",
+            "rest_seconds": 120,
+            "equipment": "Machine / Barbell",
+            "muscles": [
+              "Glutes"
+            ]
+          },
+          {
+            "name": "Walking Lunge / Bulgarian Split Squat",
+            "sets": 3,
+            "reps": "8-10 per leg",
+            "rest_seconds": 90,
+            "equipment": "Dumbbells / Bodyweight",
+            "muscles": [
+              "Quads",
+              "Glutes"
+            ]
+          },
+          {
+            "name": "Leg Extension",
+            "sets": 3,
+            "reps": "12-15",
+            "rest_seconds": 75,
+            "equipment": "Machine",
+            "muscles": [
+              "Quads"
+            ]
+          },
+          {
+            "name": "45-degree Back Extension",
+            "sets": 3,
+            "reps": "10-12",
+            "rest_seconds": 90,
+            "equipment": "Bench",
+            "muscles": [
+              "Back",
+              "Glutes"
+            ]
+          },
+          {
+            "name": "Sled Push / Sandbag Carry",
+            "sets": 4,
+            "reps": "20-30 m",
+            "rest_seconds": 90,
+            "equipment": "Sled / Sandbag",
+            "muscles": [
+              "Full body"
+            ],
+            "type": "carry"
+          },
+          {
+            "name": "Suitcase Carry",
+            "sets": 3,
+            "reps": "30 m per side",
+            "rest_seconds": 60,
+            "equipment": "Dumbbell / Kettlebell",
+            "muscles": [
+              "Core"
+            ],
+            "type": "carry"
+          },
+          {
+            "name": "Pallof Press",
+            "sets": 3,
+            "reps": "10 per side",
+            "rest_seconds": 60,
+            "equipment": "Cable / Band",
+            "muscles": [
+              "Core"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "G4",
+        "name": "Upper Body B",
+        "focus": "Physique \u2022 Grip",
+        "estimated_minutes": 60,
+        "exercises": [
+          {
+            "name": "Incline Dumbbell Press",
+            "sets": 4,
+            "reps": "8-10",
+            "rest_seconds": 120,
+            "equipment": "Dumbbells",
+            "muscles": [
+              "Chest"
+            ]
+          },
+          {
+            "name": "Neutral Pulldown / Strict Pull-up",
+            "sets": 3,
+            "reps": "8-12",
+            "rest_seconds": 120,
+            "equipment": "Cable / Bodyweight",
+            "muscles": [
+              "Back"
+            ]
+          },
+          {
+            "name": "One-arm Dumbbell / Cable Row",
+            "sets": 3,
+            "reps": "8-12 per arm",
+            "rest_seconds": 90,
+            "equipment": "Dumbbells / Cable",
+            "muscles": [
+              "Back"
+            ]
+          },
+          {
+            "name": "Cable Fly / Pec Deck",
+            "sets": 3,
+            "reps": "12-15",
+            "rest_seconds": 0,
+            "equipment": "Cable / Machine",
+            "muscles": [
+              "Chest"
+            ],
+            "superset": "B"
+          },
+          {
+            "name": "Face Pull",
+            "sets": 3,
+            "reps": "15",
+            "rest_seconds": 75,
+            "equipment": "Cable",
+            "muscles": [
+              "Rear delts"
+            ],
+            "superset": "B"
+          },
+          {
+            "name": "Overhead Cable Triceps Extension",
+            "sets": 2,
+            "reps": "10-12",
+            "rest_seconds": 0,
+            "equipment": "Cable",
+            "muscles": [
+              "Triceps"
+            ],
+            "superset": "C"
+          },
+          {
+            "name": "Hammer Curl",
+            "sets": 2,
+            "reps": "10-12",
+            "rest_seconds": 60,
+            "equipment": "Dumbbells",
+            "muscles": [
+              "Biceps"
+            ],
+            "superset": "C"
+          },
+          {
+            "name": "Dead Hang",
+            "sets": 2,
+            "reps": "Max time",
+            "rest_seconds": 60,
+            "equipment": "Pull-up bar",
+            "muscles": [
+              "Grip"
+            ],
+            "type": "hold"
+          }
+        ]
+      }
+    ],
+    "morning_routines": [
+      {
+        "id": "M1",
+        "name": "Core",
+        "estimated_minutes": 15,
+        "rounds": 3,
+        "rest_between_rounds_seconds": 45,
+        "exercises": [
+          {
+            "name": "Dead Bug",
+            "reps": "10"
+          },
+          {
+            "name": "Plank",
+            "reps": "30-45 sec"
+          },
+          {
+            "name": "Bird Dog",
+            "reps": "10 per side"
+          },
+          {
+            "name": "Hollow Hold",
+            "reps": "20-30 sec"
+          },
+          {
+            "name": "Glute Bridge",
+            "reps": "15"
+          }
+        ]
+      },
+      {
+        "id": "M2",
+        "name": "Mobility + Conditioning",
+        "estimated_minutes": 16,
+        "mobility_minutes": 8,
+        "mobility": [
+          "Hip 90/90",
+          "Thoracic rotations",
+          "Deep squat hold",
+          "Band shoulder dislocates",
+          "Cat-cow"
+        ],
+        "conditioning_minutes": "8-10",
+        "conditioning": "Jump rope or shadow boxing, 30 sec on/off"
+      },
+      {
+        "id": "M3",
+        "name": "Easy Run",
+        "estimated_minutes": 25,
+        "type": "run",
+        "pace": "Conversational",
+        "distance_progression_km": {
+          "weeks_1_2": 2,
+          "weeks_3_4": 3,
+          "week_5_onward": 4
+        },
+        "weekly_increase_max_km": 0.5,
+        "optional_pickups": "4 x 20 sec",
+        "track": [
+          "distance_km",
+          "duration_seconds",
+          "effort_1_to_10"
+        ]
+      },
+      {
+        "id": "M4",
+        "name": "Ruck Walk",
+        "estimated_minutes": 35,
+        "type": "ruck",
+        "pack_weight_kg": [
+          5,
+          10
+        ],
+        "duration_minutes": [
+          30,
+          40
+        ],
+        "pace": "Brisk",
+        "can_replace_one_run": true,
+        "track": [
+          "pack_weight_kg",
+          "duration_minutes",
+          "distance_km"
+        ]
+      },
+      {
+        "id": "M5",
+        "name": "Recovery Mobility",
+        "estimated_minutes": 12,
+        "type": "mobility",
+        "duration_minutes": [
+          10,
+          15
+        ]
+      }
+    ],
+    "weekly_schedule": [
+      {
+        "day": "Monday",
+        "morning": "M1",
+        "gym": "G1"
+      },
+      {
+        "day": "Tuesday",
+        "morning": "M2",
+        "gym": "G2"
+      },
+      {
+        "day": "Wednesday",
+        "morning": "M3",
+        "gym": null,
+        "recovery": "Rest"
+      },
+      {
+        "day": "Thursday",
+        "morning": "M1",
+        "gym": "G3"
+      },
+      {
+        "day": "Friday",
+        "morning": "M2",
+        "gym": "G4"
+      },
+      {
+        "day": "Saturday",
+        "morning": "M3 or M4",
+        "gym": null,
+        "recovery": "Rest"
+      },
+      {
+        "day": "Sunday",
+        "morning": "M5",
+        "gym": null,
+        "recovery": "Rest"
+      }
+    ],
+    "global_rules": {
+      "warmup": "5 min light cardio/mobility + 1-2 ramp-up sets for first exercise",
+      "rir": {
+        "weeks_1_2": "3-4 RIR",
+        "after_week_2": "1-3 RIR"
+      },
+      "rest": {
+        "heavy_compounds_seconds": [
+          120,
+          180
+        ],
+        "accessories_seconds": [
+          60,
+          90
+        ],
+        "between_superset_pair_seconds": 0,
+        "after_superset_pair_seconds": [
+          60,
+          90
+        ]
+      },
+      "progression": "Double progression; carry load before distance; holds progress by time; optional deload",
+      "recovery_guard": "Warn/block if run or ruck is scheduled the day before G1 or G3"
+    }
+  }
+}

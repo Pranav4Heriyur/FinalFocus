@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="a11y_desc">Detects which app is on screen during a focus session and returns you to Focus if it is not on your allowed list. Only if you turn on YouTube Study Exemptions, it also reads the YouTube window to match your approved channels. It compares on-device, keeps nothing but time totals, and never reads other apps.</string>
+</resources>

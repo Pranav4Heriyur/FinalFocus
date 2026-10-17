@@ -1,0 +1,485 @@
+{
+  "schema_version": 1,
+  "note": "Starter catalog derived from the supplied routine definitions. Not a recovered original asset-pack catalog. Image and animation keys are semantic placeholders and must gracefully fall back when matching assets are absent.",
+  "exercise_catalog": [
+    {
+      "id": "leg_press",
+      "name": "Leg Press",
+      "equipment": "Machine",
+      "primary_muscles": [
+        "Quads"
+      ],
+      "type": "reps",
+      "default_sets": 4,
+      "default_rep_range": "8-10",
+      "default_rest_seconds": 150,
+      "hero_image_key": "exercise_leg_press",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_leg_press",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "hack_squat_or_smith_machine_squat",
+      "name": "Hack Squat (or Smith Machine Squat)",
+      "equipment": "Machine",
+      "primary_muscles": [
+        "Quads"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "8-10",
+      "default_rest_seconds": 120,
+      "hero_image_key": "exercise_hack_squat_or_smith_machine_squat",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_hack_squat_or_smith_machine_squat",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "dumbbell_romanian_deadlift",
+      "name": "Dumbbell Romanian Deadlift",
+      "equipment": "Dumbbells",
+      "primary_muscles": [
+        "Hamstrings",
+        "Glutes"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "8-10",
+      "default_rest_seconds": 120,
+      "hero_image_key": "exercise_dumbbell_romanian_deadlift",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_dumbbell_romanian_deadlift",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "lying_seated_leg_curl",
+      "name": "Lying / Seated Leg Curl",
+      "equipment": "Machine",
+      "primary_muscles": [
+        "Hamstrings"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "10-12",
+      "default_rest_seconds": 90,
+      "hero_image_key": "exercise_lying_seated_leg_curl",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_lying_seated_leg_curl",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "standing_seated_calf_raise",
+      "name": "Standing / Seated Calf Raise",
+      "equipment": "Machine",
+      "primary_muscles": [
+        "Calves"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "12-15",
+      "default_rest_seconds": 60,
+      "hero_image_key": "exercise_standing_seated_calf_raise",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_standing_seated_calf_raise",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "farmers_carry",
+      "name": "Farmer's Carry",
+      "equipment": "Dumbbells",
+      "primary_muscles": [
+        "Full body"
+      ],
+      "type": "carry",
+      "default_sets": 3,
+      "default_rep_range": "30-40 m",
+      "default_rest_seconds": 90,
+      "hero_image_key": "exercise_farmers_carry",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_farmers_carry",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "weighted_assisted_pull_up_or_lat_pulldown",
+      "name": "Weighted / Assisted Pull-up or Lat Pulldown",
+      "equipment": "Machine / Bodyweight",
+      "primary_muscles": [
+        "Back"
+      ],
+      "type": "reps",
+      "default_sets": 4,
+      "default_rep_range": "5-8",
+      "default_rest_seconds": 150,
+      "hero_image_key": "exercise_weighted_assisted_pull_up_or_lat_pulldown",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_weighted_assisted_pull_up_or_lat_pulldown",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "machine_chest_press_dumbbell_bench_press",
+      "name": "Machine Chest Press / Dumbbell Bench Press",
+      "equipment": "Machine / Dumbbells",
+      "primary_muscles": [
+        "Chest"
+      ],
+      "type": "reps",
+      "default_sets": 4,
+      "default_rep_range": "6-8",
+      "default_rest_seconds": 150,
+      "hero_image_key": "exercise_machine_chest_press_dumbbell_bench_press",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_machine_chest_press_dumbbell_bench_press",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "seated_shoulder_press",
+      "name": "Seated Shoulder Press",
+      "equipment": "Machine / Dumbbells",
+      "primary_muscles": [
+        "Shoulders"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "8-10",
+      "default_rest_seconds": 120,
+      "hero_image_key": "exercise_seated_shoulder_press",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_seated_shoulder_press",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "seated_cable_chest_supported_row",
+      "name": "Seated Cable / Chest-supported Row",
+      "equipment": "Cable / Machine",
+      "primary_muscles": [
+        "Back"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "8-10",
+      "default_rest_seconds": 90,
+      "hero_image_key": "exercise_seated_cable_chest_supported_row",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_seated_cable_chest_supported_row",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "lateral_raise",
+      "name": "Lateral Raise",
+      "equipment": "Dumbbells / Cable",
+      "primary_muscles": [
+        "Shoulders"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "12-15",
+      "default_rest_seconds": 0,
+      "hero_image_key": "exercise_lateral_raise",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_lateral_raise",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "triceps_rope_pushdown",
+      "name": "Triceps Rope Pushdown",
+      "equipment": "Cable",
+      "primary_muscles": [
+        "Triceps"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "10-12",
+      "default_rest_seconds": 75,
+      "hero_image_key": "exercise_triceps_rope_pushdown",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_triceps_rope_pushdown",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "dumbbell_cable_curl",
+      "name": "Dumbbell / Cable Curl",
+      "equipment": "Dumbbells / Cable",
+      "primary_muscles": [
+        "Biceps"
+      ],
+      "type": "reps",
+      "default_sets": 2,
+      "default_rep_range": "10-12",
+      "default_rest_seconds": 60,
+      "hero_image_key": "exercise_dumbbell_cable_curl",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_dumbbell_cable_curl",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "hip_thrust",
+      "name": "Hip Thrust",
+      "equipment": "Machine / Barbell",
+      "primary_muscles": [
+        "Glutes"
+      ],
+      "type": "reps",
+      "default_sets": 4,
+      "default_rep_range": "8-10",
+      "default_rest_seconds": 120,
+      "hero_image_key": "exercise_hip_thrust",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_hip_thrust",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "walking_lunge_bulgarian_split_squat",
+      "name": "Walking Lunge / Bulgarian Split Squat",
+      "equipment": "Dumbbells / Bodyweight",
+      "primary_muscles": [
+        "Quads",
+        "Glutes"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "8-10 per leg",
+      "default_rest_seconds": 90,
+      "hero_image_key": "exercise_walking_lunge_bulgarian_split_squat",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_walking_lunge_bulgarian_split_squat",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "leg_extension",
+      "name": "Leg Extension",
+      "equipment": "Machine",
+      "primary_muscles": [
+        "Quads"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "12-15",
+      "default_rest_seconds": 75,
+      "hero_image_key": "exercise_leg_extension",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_leg_extension",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "45_degree_back_extension",
+      "name": "45-degree Back Extension",
+      "equipment": "Bench",
+      "primary_muscles": [
+        "Back",
+        "Glutes"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "10-12",
+      "default_rest_seconds": 90,
+      "hero_image_key": "exercise_45_degree_back_extension",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_45_degree_back_extension",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "sled_push_sandbag_carry",
+      "name": "Sled Push / Sandbag Carry",
+      "equipment": "Sled / Sandbag",
+      "primary_muscles": [
+        "Full body"
+      ],
+      "type": "carry",
+      "default_sets": 4,
+      "default_rep_range": "20-30 m",
+      "default_rest_seconds": 90,
+      "hero_image_key": "exercise_sled_push_sandbag_carry",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_sled_push_sandbag_carry",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "suitcase_carry",
+      "name": "Suitcase Carry",
+      "equipment": "Dumbbell / Kettlebell",
+      "primary_muscles": [
+        "Core"
+      ],
+      "type": "carry",
+      "default_sets": 3,
+      "default_rep_range": "30 m per side",
+      "default_rest_seconds": 60,
+      "hero_image_key": "exercise_suitcase_carry",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_suitcase_carry",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "pallof_press",
+      "name": "Pallof Press",
+      "equipment": "Cable / Band",
+      "primary_muscles": [
+        "Core"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "10 per side",
+      "default_rest_seconds": 60,
+      "hero_image_key": "exercise_pallof_press",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_pallof_press",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "incline_dumbbell_press",
+      "name": "Incline Dumbbell Press",
+      "equipment": "Dumbbells",
+      "primary_muscles": [
+        "Chest"
+      ],
+      "type": "reps",
+      "default_sets": 4,
+      "default_rep_range": "8-10",
+      "default_rest_seconds": 120,
+      "hero_image_key": "exercise_incline_dumbbell_press",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_incline_dumbbell_press",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "neutral_pulldown_strict_pull_up",
+      "name": "Neutral Pulldown / Strict Pull-up",
+      "equipment": "Cable / Bodyweight",
+      "primary_muscles": [
+        "Back"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "8-12",
+      "default_rest_seconds": 120,
+      "hero_image_key": "exercise_neutral_pulldown_strict_pull_up",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_neutral_pulldown_strict_pull_up",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "one_arm_dumbbell_cable_row",
+      "name": "One-arm Dumbbell / Cable Row",
+      "equipment": "Dumbbells / Cable",
+      "primary_muscles": [
+        "Back"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "8-12 per arm",
+      "default_rest_seconds": 90,
+      "hero_image_key": "exercise_one_arm_dumbbell_cable_row",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_one_arm_dumbbell_cable_row",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "cable_fly_pec_deck",
+      "name": "Cable Fly / Pec Deck",
+      "equipment": "Cable / Machine",
+      "primary_muscles": [
+        "Chest"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "12-15",
+      "default_rest_seconds": 0,
+      "hero_image_key": "exercise_cable_fly_pec_deck",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_cable_fly_pec_deck",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "face_pull",
+      "name": "Face Pull",
+      "equipment": "Cable",
+      "primary_muscles": [
+        "Rear delts"
+      ],
+      "type": "reps",
+      "default_sets": 3,
+      "default_rep_range": "15",
+      "default_rest_seconds": 75,
+      "hero_image_key": "exercise_face_pull",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_face_pull",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "overhead_cable_triceps_extension",
+      "name": "Overhead Cable Triceps Extension",
+      "equipment": "Cable",
+      "primary_muscles": [
+        "Triceps"
+      ],
+      "type": "reps",
+      "default_sets": 2,
+      "default_rep_range": "10-12",
+      "default_rest_seconds": 0,
+      "hero_image_key": "exercise_overhead_cable_triceps_extension",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_overhead_cable_triceps_extension",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "hammer_curl",
+      "name": "Hammer Curl",
+      "equipment": "Dumbbells",
+      "primary_muscles": [
+        "Biceps"
+      ],
+      "type": "reps",
+      "default_sets": 2,
+      "default_rep_range": "10-12",
+      "default_rest_seconds": 60,
+      "hero_image_key": "exercise_hammer_curl",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_hammer_curl",
+      "asset_fallback": "monochrome_exercise_glyph"
+    },
+    {
+      "id": "dead_hang",
+      "name": "Dead Hang",
+      "equipment": "Pull-up bar",
+      "primary_muscles": [
+        "Grip"
+      ],
+      "type": "hold",
+      "default_sets": 2,
+      "default_rep_range": "Max time",
+      "default_rest_seconds": 60,
+      "hero_image_key": "exercise_dead_hang",
+      "muscle_front_image_key": "anatomy_front",
+      "muscle_back_image_key": "anatomy_back",
+      "motion_asset_key": "motion_dead_hang",
+      "asset_fallback": "monochrome_exercise_glyph"
+    }
+  ]
+}
