@@ -128,7 +128,7 @@ fun WorkoutSetEntryScreen(back: () -> Unit) {
             }
             Box {
                 RoundBtn("Workout menu", R.drawable.plan_ic_more) { menu = true }
-                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = C.Sheet) {
+                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(text = { Text("Finish workout", color = C.White) }, onClick = { menu = false; confirm = "finish" })
                     DropdownMenuItem(text = { Text("Discard workout", color = androidx.compose.ui.graphics.Color(0xFFFF8A8A)) }, onClick = { menu = false; confirm = "discard" })
                 }

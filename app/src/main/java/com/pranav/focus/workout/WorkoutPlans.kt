@@ -264,7 +264,7 @@ fun WorkoutRoutineScreen(go: (Screen) -> Unit, back: () -> Unit) {
             Spacer(Modifier.width(8.dp))
             Box {
                 RoundBtn("More", com.pranav.focus.R.drawable.plan_ic_more) { menu = true }
-                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = C.Sheet) {
+                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(text = { Text("Open weekly schedule", color = C.White) }, onClick = { menu = false; go(Screen.WorkoutPlans) })
                 }
             }

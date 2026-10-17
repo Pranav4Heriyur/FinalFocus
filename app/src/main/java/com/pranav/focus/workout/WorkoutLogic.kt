@@ -1,5 +1,7 @@
 package com.pranav.focus.workout
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -86,7 +88,6 @@ object WorkoutLogic {
     /** label -> stored `type` (existing model: reps / hold / carry). */
     val TRACKING_TYPES = listOf("Weight & reps" to "reps", "Bodyweight reps" to "reps", "Duration" to "hold", "Distance" to "carry")
     val MOVEMENT_PATTERNS = listOf("Push", "Pull", "Squat", "Hinge", "Lunge", "Carry", "Core", "Isolation", "Cardio", "Mobility")
-    val ALL_MUSCLES = MUSCLE_FILTERS.filter { it != "Arms" } + SPECIFIC_MUSCLES
     val CUSTOM_EQUIPMENT = listOf("Barbell", "Dumbbell", "Machine", "Cable", "Bodyweight", "Band", "Kettlebell", "Other")
     fun defaultRepsFor(type: String) = when (type) { "hold" -> "30-45 sec"; "carry" -> "20-30 m"; else -> "8-12" }
     fun normaliseName(n: String) = n.lowercase().filter { it.isLetterOrDigit() }
@@ -100,6 +101,7 @@ object WorkoutLogic {
 
     /** C5 specific-muscle filters (multi-select). */
     val SPECIFIC_MUSCLES = listOf("Biceps", "Triceps", "Front Delts", "Side Delts", "Rear Delts", "Forearms")
+    val ALL_MUSCLES = MUSCLE_FILTERS.filter { it != "Arms" } + SPECIFIC_MUSCLES
 
     /**
      * Specific muscles an exercise trains. Explicit tags win; a generic "Shoulders" entry (older catalogue / custom rows)

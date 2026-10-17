@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -74,7 +75,7 @@ import java.util.Date
 import java.util.Locale
 
 /** The one rest timer (monotonic clock). It keeps counting while the app process is alive; there is no background alert. */
-val RestTimer = RestTimerState { SystemClock.elapsedRealtime() }
+val RestTimer = RestTimerState(clock = { SystemClock.elapsedRealtime() })
 private val REST_PRESETS = listOf(30, 60, 90, 120, 180)
 
 /**
@@ -267,7 +268,7 @@ fun WorkoutActiveScreen(go: (Screen) -> Unit, back: () -> Unit) {
                 if (inProgress) Text(session.title, color = C.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, modifier = Modifier.weight(1f).padding(horizontal = 14.dp)) else Spacer(Modifier.weight(1f))
                 Box {
                     RoundBtn("More options", R.drawable.plan_ic_more) { menu = true }
-                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = C.Sheet) {
+                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                         DropdownMenuItem(text = { Text("Add exercise", color = C.White) }, onClick = { menu = false; addOpen = true })
                         DropdownMenuItem(text = { Text("Finish workout", color = C.White) }, onClick = { menu = false; finishOpen = true })
                         DropdownMenuItem(text = { Text("Exit workout", color = C.White) }, onClick = { menu = false; requestExit() })

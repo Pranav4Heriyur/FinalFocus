@@ -254,7 +254,7 @@ private fun BuilderRow(l: Line, index: Int, count: Int, onMove: (Int, Int) -> Un
         }
         Box {
             Box(Modifier.size(44.dp).clickable(role = Role.Button) { menu = true }.semantics { contentDescription = "Exercise options" }, contentAlignment = Alignment.Center) { Ico(R.drawable.plan_ic_more, 20.dp, C.White) }
-            DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = C.Sheet) {
+            DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                 DropdownMenuItem(text = { Text("Edit sets / reps / rest", color = C.White) }, onClick = { menu = false; onEdit() })
                 if (index > 0) DropdownMenuItem(text = { Text("Move up", color = C.White) }, onClick = { menu = false; onMove(index, index - 1) })
                 if (index < count - 1) DropdownMenuItem(text = { Text("Move down", color = C.White) }, onClick = { menu = false; onMove(index, index + 1) })
@@ -402,7 +402,7 @@ private fun CustomExerciseSheet(repo: WorkoutRepo, onCreated: (String) -> Unit, 
     var err by remember { mutableStateOf<String?>(null) }
     val type = WorkoutLogic.TRACKING_TYPES[tracking].second
     val showBw = tracking == 1 || equip == "Bodyweight"
-    fun label(t: String) = Text(t, color = C.Text2, fontSize = 12.sp, modifier = Modifier.padding(top = 14.dp, bottom = 6.dp))
+    @Composable fun label(t: String) = Text(t, color = C.Text2, fontSize = 12.sp, modifier = Modifier.padding(top = 14.dp, bottom = 6.dp))
     FocusSheet(onDismiss) {
         Column(Modifier.verticalScroll(rememberScrollState())) {
             Text("Custom exercise", color = C.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
