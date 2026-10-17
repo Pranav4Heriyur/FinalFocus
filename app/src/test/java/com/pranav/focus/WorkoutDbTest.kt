@@ -458,7 +458,7 @@ class WorkoutDbTest {
     }
 
     @Test fun restTimerUsesMonotonicClock() {
-        var t = 0L; val r = RestTimerState { t }
+        var t = 0L; val r = RestTimerState(clock = { t })
         assertEquals(90_000L, r.leftMs()); r.select(60); assertEquals(60_000L, r.leftMs())
         r.start(60, "Bench"); t = 20_000; assertEquals(40_000L, r.leftMs())
         r.pause(); t = 500_000; assertEquals(40_000L, r.leftMs()); assertTrue(r.paused)
@@ -477,17 +477,17 @@ class WorkoutDbTest {
     }
 
     @Test fun restTimerSnapshotRestoreIsConsistent() {
-        var t = 1_000L; val a = RestTimerState { t }
+        var t = 1_000L; val a = RestTimerState(clock = { t })
         a.start(90, "Bench"); t += 30_000
         val runSnap = a.snapshot(wallNow = 10_000_000L)
-        val b = RestTimerState { 5_000L }                                   // fresh process, different monotonic clock
+        val b = RestTimerState(clock = { 5_000L })                                   // fresh process, different monotonic clock
         b.restore(runSnap, wallNow = 10_020_000L)                          // reopened 20 s later
         assertTrue(b.running); assertEquals(40_000L, b.leftMs())           // 60 s left at save, 20 s passed
-        val late = RestTimerState { 0L }; late.restore(runSnap, wallNow = 11_000_000L)
+        val late = RestTimerState(clock = { 0L }); late.restore(runSnap, wallNow = 11_000_000L)
         assertFalse(late.running); assertTrue(late.finished); assertEquals(0L, late.leftMs())   // ended while closed: finished, never negative
-        a.pause(); val p = RestTimerState { 0L }; p.restore(a.snapshot(99L), 5_000_000L)
+        a.pause(); val p = RestTimerState(clock = { 0L }); p.restore(a.snapshot(99L), 5_000_000L)
         assertTrue(p.paused); assertFalse(p.running); assertEquals(60_000L, p.leftMs())          // stays paused, same remaining time
-        val idle = RestTimerState { 0L }; idle.restore("garbage", 1L); assertFalse(idle.running); assertEquals(90_000L, idle.leftMs())
+        val idle = RestTimerState(clock = { 0L }); idle.restore("garbage", 1L); assertFalse(idle.running); assertEquals(90_000L, idle.leftMs())
         var n = 0; a.onChange = { n++ }; a.resume(); a.reset(); assertEquals(2, n)
     }
 
