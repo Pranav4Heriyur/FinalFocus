@@ -95,10 +95,11 @@ fun HomeScreen(go: (Screen) -> Unit) {
     ) {
         Reveal(0) { Header(greeting, watchMe, avatarVer, { avatarVer++ }) { watchMe = !watchMe; store.watchMe = watchMe } }
         Reveal(1) { HeroCard(store, act, mode, connected, store.imperial, { mode = it }) { go(Screen.Connections) } }
+        Reveal(2) { TodayCard(go) }
         Reveal(2) {
             BalanceCard(
                 listOf(
-                    (focusMin / 120f), (day.actions.size + (store.int("workouts_$today"))).coerceAtMost(1).toFloat(),
+                    (focusMin / 120f), (day.actions.size + (store.inAppWorkoutsOn(today.toString()))).coerceAtMost(1).toFloat(),
                     (runKm / 5.0).toFloat(), (studyLogs.sumOf { it.attempted } / 60f), (store.int("sleep_min") / 480f), (store.streak / 30f),
                 ).map { it.coerceIn(0f, 1f) }
             )
@@ -616,6 +617,35 @@ private fun WorkoutCard(modifier: Modifier, onClick: () -> Unit) {
 }
 
 // ---------------------------------------------------------------------------------------
+/** Everything due today in one place, each row opening the screen that handles it. */
+@Composable
+private fun TodayCard(go: (Screen) -> Unit) {
+    val ctx = LocalContext.current
+    val store = remember { Store.get(ctx) }
+    val tick = AppState.dataTick + AppState.tick
+    val tasksLeft = remember(tick) { PlanState.load(ctx); PlanState.forDate(AppClock.today()).count { !it.done } }
+    val mistakesDue = remember(tick) {
+        runCatching { val t = AppClock.today().toString(); StudyDb.get(ctx).mistakes().count { it.due <= t } }.getOrDefault(0)
+    }
+    val workoutToday = remember(tick) { store.workoutsOn(store.today()) }
+    val rows = listOf(
+        Triple("Plan tasks left", "$tasksLeft", Screen.Plan),
+        Triple("Workout today", if (workoutToday > 0) "Done" else "Not yet", Screen.Workout),
+        Triple("Mistakes due for review", "$mistakesDue", Screen.Study),
+        Triple("Study questions today", "${store.studyToday}", Screen.Study),
+        Triple("Time Bank available", "${store.bankMinutes} min", Screen.TimeBank),
+    )
+    SectionCard(pad = 14.dp, radius = 22.dp) {
+        Caps("Today")
+        rows.forEach { (label, value, target) ->
+            Row(Modifier.fillMaxWidth().clickable { go(target) }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(label, color = C.Text2, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                Text(value, color = C.White, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+            }
+        }
+    }
+}
+
 @Composable
 private fun WeeklyCard(focus: Map<String, Int>) {
     val today = AppClock.today()

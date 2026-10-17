@@ -273,6 +273,21 @@ class Store private constructor(ctx: Context) {
 
     fun activitiesOn(date: String): List<Activity> = activities.filter { it.startDate == date }
 
+    /** Completed in-app workouts that started on [date] (local day). */
+    fun inAppWorkoutsOn(date: String): Int {
+        val d = java.time.LocalDate.parse(date)
+        val zone = AppClock.zone()
+        val from = d.atStartOfDay(zone).toInstant().toEpochMilli()
+        val to = d.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
+        return com.pranav.focus.workout.WorkoutDb.get(app).repo.completedCountBetween(from, to)
+    }
+
+    /** All workouts on [date]: Health Connect workouts plus completed in-app workouts. */
+    fun workoutsOn(date: String): Int = activitiesOn(date).count { it.isWorkout } + inAppWorkoutsOn(date)
+
+    /** Days with at least one workout in the last 7 days, today included. Drives the consistency multiplier. */
+    fun workoutDaysInWeek(): Int = (0L..6L).count { workoutsOn(AppClock.today().minusDays(it).toString()) > 0 }
+
     /** Questions attempted (correct + wrong) on a local date, derived from the saved study logs (the single source of truth). */
     fun studyAttemptedOn(date: String): Int {
         val (from, to) = PlanDates.dayBoundsMs(LocalDate.parse(date), AppClock.zone())
@@ -365,6 +380,11 @@ class Store private constructor(ctx: Context) {
     var targetScale: Float
         get() = sp.getFloat("target_scale", 1f)
         set(v) = sp.edit().putFloat("target_scale", v).apply()
+
+    /** Focus-minutes target for the current week. 0 = not set yet, so the base target applies. */
+    var targetFocusMin: Int
+        get() = sp.getInt("target_focus_min", 0)
+        set(v) = sp.edit().putInt("target_focus_min", v).apply()
 
     var targetWeek: String
         get() = str("target_week")

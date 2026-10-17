@@ -312,7 +312,7 @@ fun RankScreen(back: () -> Unit) {
     val cur = Ranks.forXp(xp)
     val nxt = Ranks.next(xp)
     val w = remember { Weekly.stats(store, Weekly.weekStart()) }
-    val t = Weekly.target(store.targetScale)
+    val t = Weekly.target(store.targetScale, Weekly.focusTarget(store))
     var sel by remember { mutableIntStateOf(Ranks.ALL.indexOf(cur)) }
     val glowA = remember { Animatable(0.08f) }
     LaunchedEffect(Unit) { glowA.animateTo(0.20f, tween(350)); glowA.animateTo(0.08f, tween(350)) }
@@ -381,8 +381,8 @@ fun RankScreen(back: () -> Unit) {
                 }
                 Spacer(Modifier.height(8.dp))
                 TargetRow(R.drawable.p1_clock, "Focus for ${Fmt.hm(t.focusMin)}", "${Fmt.hm(w.focusMin)} / ${Fmt.hm(t.focusMin)}", w.focusMin.toFloat() / t.focusMin)
-                TargetRow(R.drawable.p1_run_sprinter, "Complete ${t.runs} runs", "${w.runs} / ${t.runs}", w.runs.toFloat() / t.runs)
-                TargetRow(R.drawable.p1_dumbbell, "Complete ${t.workouts} workouts", "${w.workouts} / ${t.workouts}", w.workouts.toFloat() / t.workouts)
+                TargetRow(R.drawable.p1_run_sprinter, "Run ${"%.0f".format(t.runKm)} km", "${"%.1f".format(w.runKm)} / ${"%.0f".format(t.runKm)} km", (w.runKm / t.runKm).toFloat())
+                TargetRow(R.drawable.p1_dumbbell, "Workout on ${t.workoutDays} days", "${w.workoutDays} / ${t.workoutDays} days", w.workoutDays.toFloat() / t.workoutDays)
                 TargetRow(R.drawable.p1_study_book, "Solve ${t.questions} questions", "${w.questions} / ${t.questions}", w.questions.toFloat() / t.questions)
                 Text(if (store.targetScale > 1f) "Targets scaled to ${(store.targetScale * 100).toInt()}%." else "Hit all four and next week’s targets rise 5%.", color = C.Text2, fontSize = 12.sp, modifier = Modifier.padding(top = 10.dp))
             }

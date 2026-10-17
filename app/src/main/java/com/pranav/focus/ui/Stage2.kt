@@ -161,12 +161,14 @@ fun StatsScreen(go: (com.pranav.focus.ui.Screen) -> Unit) {
     val focus = remember(range, tick) { val m = store.focusDays(); buckets(range) { (m[it.toString()] ?: 0).toDouble() } }
     val acts = remember(tick) { store.activities }
     val dist = remember(range, tick) { buckets(range) { d -> acts.filter { it.startDate == d.toString() && (it.isRun || it.isRide) }.sumOf { it.distM } / 1000.0 } }
-    val wk = remember(range, tick) { buckets(range) { d -> acts.count { it.startDate == d.toString() && it.isWorkout } + store.int("workouts_$d").toDouble() } }
+    val wk = remember(range, tick) { buckets(range) { d -> acts.count { it.startDate == d.toString() && it.isWorkout } + store.inAppWorkoutsOn(d.toString()).toDouble() } }
     val apps = remember(tick) { if (UsageHelper.hasAccess(ctx)) UsageHelper.today(ctx).take(5) else emptyList() }
     val focusDays = remember(tick) { store.focusDays() }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 100.dp)) {
         ScreenHeader("Stats", null)
+        WeeklyTargetCard(store)
+        Spacer(Modifier.height(12.dp))
         SegFull(listOf("Week", "Month", "Year"), range) { range = it }
         Spacer(Modifier.height(16.dp))
         FocusCard(Modifier.fillMaxWidth()) {
@@ -244,9 +246,6 @@ fun StatsScreen(go: (com.pranav.focus.ui.Screen) -> Unit) {
             Text("“${QUOTES[AppClock.today().dayOfYear % QUOTES.size]}”", color = C.White, fontSize = 18.sp, fontWeight = FontWeight.Light, lineHeight = 26.sp)
         }
         Spacer(Modifier.height(12.dp))
-        NavRow(R.drawable.ic_emoji_events, "Rank", Ranks.forXp(store.xp).name) { go(Screen.Rank) }
-        NavRow(R.drawable.ic_visibility_off, "Accountability Mirror", "Review today") { go(Screen.Mirror) }
-        NavRow(R.drawable.ic_redeem, "Cookie Jar", "${store.jar.size} wins") { go(Screen.Jar) }
     }
 }
 
@@ -267,112 +266,3 @@ fun NavRow(icon: Int, title: String, sub: String, onClick: () -> Unit) {
 // --------------------------------------------------------------------------------------
 // A15 Profile
 // --------------------------------------------------------------------------------------
-private fun exportJson(ctx: Context): String {
-    val o = JSONObject()
-    Store.get(ctx).sp.all.forEach { (k, v) -> o.put(k, if (v is Set<*>) org.json.JSONArray(v.toList()) else v) }
-    return o.toString(2)
-}
-
-@Composable
-fun ProfileScreen2(go: (Screen) -> Unit) {
-    val ctx = LocalContext.current
-    val store = remember { Store.get(ctx) }
-    var watch by remember { mutableStateOf(store.watchMe) }
-    var tone by remember { mutableIntStateOf(store.tone) }
-    var units by remember { mutableIntStateOf(if (store.imperial) 1 else 0) }
-    var lockOn by remember { mutableStateOf(store.restrictionsEnabled) }
-    var confirmReset by remember { mutableStateOf(false) }
-    val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri: Uri? ->
-        if (uri != null) runCatching { ctx.contentResolver.openOutputStream(uri)?.use { it.write(exportJson(ctx).toByteArray()) } }
-    }
-    val rank = Ranks.forXp(store.xp)
-
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 100.dp)) {
-        ScreenHeader("Profile", null)
-        FocusCard(Modifier.fillMaxWidth(), onClick = { go(Screen.Rank) }) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(60.dp).clip(RoundedCornerShape(18.dp)).background(C.Sheet), contentAlignment = Alignment.Center) {
-                    Text("P", color = C.White, fontSize = 26.sp, fontWeight = FontWeight.Light)
-                }
-                Column(Modifier.weight(1f).padding(start = 12.dp)) {
-                    Text("Pranav", color = C.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
-                    Text("${rank.name} · ${store.xp} XP", color = C.Text2, fontSize = 14.sp)
-                }
-                Ico(R.drawable.ic_chevron_right, 22.dp, C.Text3)
-            }
-            Spacer(Modifier.height(14.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                ProfileStat("${store.streak}", "Day streak")
-                ProfileStat("${store.bankMinutes}m", "Time bank")
-                ProfileStat(Fmt.hm(store.totalFocusMinutes), "Focused")
-            }
-        }
-        Spacer(Modifier.height(16.dp))
-        Caps("Connections"); Spacer(Modifier.height(6.dp))
-        ProfileRow(R.drawable.ic_link, "Connections", "Health Connect · Notion · Watch") { go(Screen.Connections) }
-        Spacer(Modifier.height(10.dp))
-        FocusCard(Modifier.fillMaxWidth()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconTile(R.drawable.ic_watch)
-                Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                    Text("Watch worn by me", color = C.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
-                    Text("Turn off when someone else wears it.", color = C.Text2, fontSize = 13.sp)
-                }
-                FocusSwitch(watch) { watch = it; store.watchMe = it }
-            }
-        }
-        Spacer(Modifier.height(16.dp))
-        Caps("Focus"); Spacer(Modifier.height(6.dp))
-        ProfileRow(R.drawable.ic_hourglass_top, "Time Bank", "${store.bankMinutes} min available") { go(Screen.TimeBank) }
-        Spacer(Modifier.height(10.dp))
-        ProfileRow(R.drawable.ic_tune, "App rules", "${store.appRules.size} limits · ${store.unlockRules.size} unlock rules") { go(Screen.Rules) }
-        Spacer(Modifier.height(10.dp))
-        ProfileRow(R.drawable.ic_grid_view, "Allowed apps", "${store.allowedApps.size} chosen + Phone") { go(Screen.Apps) }
-        Spacer(Modifier.height(10.dp))
-        ProfileRow(R.drawable.ic_call, "Allowed callers", "${store.callers.size} numbers") { go(Screen.Callers) }
-        Spacer(Modifier.height(16.dp))
-        Caps("Permissions & security"); Spacer(Modifier.height(6.dp))
-        ProfileRow(R.drawable.ic_shield, "Permissions", if (AppState.coreReady) "Lock ready" else "Action needed") { go(Screen.Setup) }
-        Spacer(Modifier.height(10.dp))
-        ProfileRow(R.drawable.ic_fingerprint, "Security", if (store.biometricLock) "Biometric lock on" else "App lock off") { go(Screen.Security) }
-        Spacer(Modifier.height(16.dp))
-        Caps("Preferences"); Spacer(Modifier.height(6.dp))
-        FocusCard(Modifier.fillMaxWidth()) {
-            Text("Tone", color = C.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(8.dp))
-            SegFull(listOf("Normal", "Hard", "Goggins"), tone) { tone = it; store.tone = it }
-            Spacer(Modifier.height(14.dp))
-            Text("Units", color = C.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(8.dp))
-            SegFull(listOf("Metric", "Imperial"), units) { units = it; store.imperial = it == 1 }
-        }
-        Spacer(Modifier.height(10.dp))
-        ProfileRow(R.drawable.ic_inventory_2, "Export data", "Save everything as JSON") { export.launch("focus-export.json") }
-        Spacer(Modifier.height(10.dp))
-        FocusCard(Modifier.fillMaxWidth()) {
-            Text("About", color = C.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-            Text("Focus 1.0 · private build · all data stays on this phone.", color = C.Text2, fontSize = 13.sp)
-        }
-        Spacer(Modifier.height(16.dp))
-        Caps("Danger zone"); Spacer(Modifier.height(6.dp))
-        FocusCard(Modifier.fillMaxWidth()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("App lock enabled", color = C.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                    Text("Off pauses all app rules and blocks.", color = C.Text2, fontSize = 13.sp)
-                }
-                FocusSwitch(lockOn) { lockOn = it; store.restrictionsEnabled = it }
-            }
-        }
-        Spacer(Modifier.height(10.dp))
-        GhostButton("Reset all data", icon = R.drawable.ic_delete) { confirmReset = true }
-    }
-    if (confirmReset) AlertDialog(
-        onDismissRequest = { confirmReset = false },
-        containerColor = C.Sheet,
-        title = { Text("Reset everything?", color = C.White) },
-        text = { Text("XP, streak, rules, jar and history are erased. This can’t be undone.", color = C.Text2) },
-        confirmButton = { TextButton({ store.resetAll(); confirmReset = false; AppState.dataTick++; AppState.refresh(ctx) }) { Text("Reset", color = C.White) } },
-        dismissButton = { TextButton({ confirmReset = false }) { Text("Cancel", color = C.Text2) } },
-    )
-}

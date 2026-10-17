@@ -158,6 +158,7 @@ private fun SheetHeader(title: String, icon: String? = null, onClose: () -> Unit
 @Composable
 fun WorkoutActiveScreen(go: (Screen) -> Unit, back: () -> Unit) {
     val repo = rememberRepo()
+    val ctxW = androidx.compose.ui.platform.LocalContext.current
     val tick = WorkoutNav.tick
     var retry by remember { mutableIntStateOf(0) }
     val loaded = remember(WorkoutNav.sessionId, tick, retry) {
@@ -380,7 +381,7 @@ fun WorkoutActiveScreen(go: (Screen) -> Unit, back: () -> Unit) {
             else if (!saving) {
                 saving = true
                 runCatching { RestTimer.reset("cancelled"); check(repo.finishSession(session.id, true) || repo.session(session.id)?.status == "completed") { "not saved" }; check(repo.session(session.id)?.status == "completed") { "not saved" } }
-                    .onSuccess { WorkoutNav.completedSessionId = session.id; WorkoutNav.sessionId = null; WorkoutNav.bump(); endState(); go(Screen.Workout); go(Screen.WorkoutComplete) }
+                    .onSuccess { WorkoutNav.completedSessionId = session.id; WorkoutNav.sessionId = null; WorkoutNav.bump(); endState(); runCatching { com.pranav.focus.lock.Earning.workoutSaved(ctxW, session.id) }; go(Screen.Workout); go(Screen.WorkoutComplete) }
                     .onFailure { saving = false; actionError = "Couldn't save the workout. Your sets are still recorded — try again." }
             }
         }) { finishOpen = false }

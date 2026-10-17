@@ -215,6 +215,16 @@ private fun SummitArt(modifier: Modifier) {
 // Screen
 // ---------------------------------------------------------------------------------------
 @Composable
+private fun StatTile(label: String, value: String, unit: String, modifier: Modifier = Modifier) {
+    val shape = RoundedCornerShape(18.dp)
+    Column(modifier.clip(shape).background(C.Card).border(1.dp, C.Hairline, shape).padding(horizontal = 12.dp, vertical = 10.dp)) {
+        Text(label.uppercase(), color = C.Text2, fontSize = 10.sp, lineHeight = 13.sp, letterSpacing = 1.2.sp, maxLines = 1)
+        Text(value, color = C.White, fontSize = 22.sp, lineHeight = 26.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, modifier = Modifier.padding(top = 2.dp))
+        Text(unit, color = C.Text2, fontSize = 11.sp, lineHeight = 14.sp, maxLines = 1)
+    }
+}
+
+@Composable
 fun ProfileScreenRef(go: (Screen) -> Unit) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
@@ -263,12 +273,68 @@ fun ProfileScreenRef(go: (Screen) -> Unit) {
                         }
                     }
                 }
-                Spacer(Modifier.height(12.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End)) {
-                    MiniStat(R.drawable.focus_flame_white, "${store.streak}", "day streak")
-                    MiniStat(R.drawable.focus_usage_bars_white, "${store.bankMinutes} min", "time bank")
-                }
             }
+        }
+
+        // ---- your stats: every number is labelled ----
+        SectionLabel("Your stats")
+        val wkDays = remember(tick) { store.workoutDaysInWeek() }
+        val bestMock = remember(tick) { com.pranav.focus.data.StudyDb.get(ctx).mocks().maxOfOrNull { it.score } }
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatTile("Day streak", "${store.streak}", "days in a row", Modifier.weight(1f))
+                StatTile("Time Bank", "${store.bankMinutes}", "min available", Modifier.weight(1f))
+                StatTile("Focus today", "${store.todayFocusMinutes}", "min", Modifier.weight(1f))
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatTile("Total XP", "%,d".format(xp), rank.name, Modifier.weight(1f))
+                StatTile("Workout days", "$wkDays", "of the last 7", Modifier.weight(1f))
+                StatTile("Best mock", bestMock?.toString() ?: "—", if (bestMock == null) "no test yet" else "of 720", Modifier.weight(1f))
+            }
+        }
+
+        // ---- focus and rules ----
+        SectionLabel("Focus and rules")
+        GroupCard {
+            ProfSettingRow(R.drawable.ic_grid_view, "Allowed apps", "Apps you can open during a session", onClick = { go(Screen.Apps) })
+            RowDivider()
+            ProfSettingRow(R.drawable.ic_call, "Allowed callers", "Numbers that get through a session", onClick = { go(Screen.Callers) })
+            RowDivider()
+            ProfSettingRow(R.drawable.ic_tune, "App rules", "Daily limits and unlock rules", onClick = { go(Screen.Rules) })
+            RowDivider()
+            ProfSettingRow(R.drawable.ic_hourglass_top, "Time Bank", "Earn minutes, then spend them", onClick = { go(Screen.TimeBank) })
+        }
+
+        // ---- study and plan ----
+        SectionLabel("Study and plan")
+        GroupCard {
+            ProfSettingRow(R.drawable.plan_ic_notes, "Mock test trend", "Score graph over time, per subject") {
+                store.putStr("study_open", "mock_trend"); go(Screen.Study)
+            }
+            RowDivider()
+            ProfSettingRow(R.drawable.ic_menu_book, "Study hub", "Quick log, syllabus and mistakes", onClick = { go(Screen.Study) })
+            RowDivider()
+            ProfSettingRow(R.drawable.plan_ic_plan, "Plan", "Today's tasks and schedule", onClick = { go(Screen.Plan) })
+        }
+
+        // ---- workouts ----
+        SectionLabel("Workouts")
+        GroupCard {
+            ProfSettingRow(R.drawable.p1_dumbbell, "Workout hub", "Plans, routines and the active session", onClick = { go(Screen.Workout) })
+            RowDivider()
+            ProfSettingRow(R.drawable.wk_ui_chart, "Workout stats", "Volume, strength and trends", onClick = { go(Screen.WorkoutStats) })
+            RowDivider()
+            ProfSettingRow(R.drawable.wk_ui_calendar, "Workout history", "Every saved session", onClick = { go(Screen.WorkoutHistory) })
+        }
+
+        // ---- rewards ----
+        SectionLabel("Rewards")
+        GroupCard {
+            ProfSettingRow(R.drawable.ic_emoji_events, "Rank", "${rank.name} · ${"%,d".format(xp)} XP", onClick = { go(Screen.Rank) })
+            RowDivider()
+            ProfSettingRow(R.drawable.ic_visibility_off, "Accountability mirror", "Review today", onClick = { go(Screen.Mirror) })
+            RowDivider()
+            ProfSettingRow(R.drawable.ic_redeem, "Cookie jar", "${store.jar.size} wins saved", onClick = { go(Screen.Jar) })
         }
 
         // ---- connections ----
@@ -288,8 +354,8 @@ fun ProfileScreenRef(go: (Screen) -> Unit) {
                 onClick = { watch = !watch; store.watchMe = watch }) { GlowToggle(watch) { watch = it; store.watchMe = it } }
         }
 
-        // ---- permissions ----
-        SectionLabel("Permissions")
+        // ---- permissions and security ----
+        SectionLabel("Permissions and security")
         GroupCard {
             ProfSettingRow(R.drawable.focus_accessibility_white, "Accessibility", "Block apps during focus", onClick = { go(Screen.Setup) }) { PermState(AppState.a11yOn) }
             RowDivider()
@@ -301,6 +367,10 @@ fun ProfileScreenRef(go: (Screen) -> Unit) {
                 onClick = { go(if (AppState.callRoleOn) Screen.Callers else Screen.Setup) }) { PermState(AppState.callRoleOn) }
             RowDivider()
             ProfSettingRow(R.drawable.focus_notification_bell_white, "Notifications", "Show essential alerts", onClick = { go(Screen.Setup) }) { PermState(AppState.notifOn) }
+            RowDivider()
+            ProfSettingRow(R.drawable.ic_fingerprint, "Security", if (store.biometricLock) "Biometric lock on" else "App lock off", onClick = { go(Screen.Security) })
+            RowDivider()
+            ProfSettingRow(R.drawable.ic_shield, "Setup checklist", if (AppState.coreReady) "Core permissions ready" else "Action needed", onClick = { go(Screen.Setup) })
         }
 
         // ---- preferences ----

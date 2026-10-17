@@ -1,6 +1,14 @@
 package com.pranav.focus.data
 
 /**
+ * CAPS AND MULTIPLIERS, ONE PLACE (read this before adding a reward):
+ * - Focus: 2 XP per minute. Quitting a session costs 50 XP (never below 0).
+ * - Study: XP = attempted + 2 x correct, capped at StudyLogic.XP_DAILY_CAP (300) per day.
+ * - Earning actions (Time Bank): run 15 min, workout 10 min (x consistency), study 20 min. Each once per day.
+ * - Workout XP: 20 base x consistency multiplier, once per saved session.
+ * - Consistency multiplier: days with a workout in the last 7 -> 1 = x1.0, 2-3 = x1.2, 4-5 = x1.35, 6-7 = x1.5.
+ * - Weekly focus target: next week = focus time achieved this week (floor 60 min). Other weekly targets: +5% when met.
+ *
  * Single, versioned progression policy. Rank thresholds live ONLY here ([Ranks] reads them).
  * Values marked CONFIRM were not specified by the product owner: they keep today's shipped behaviour
  * and are isolated here so they can be changed in one place after confirmation.
@@ -14,6 +22,11 @@ object ProgressionPolicy {
         Rank("Disciplined", 2000, "Results over feelings."), Rank("Elite", 4000, "A different breed."),
         Rank("Legendary", 8000, "Inspires others."),
     )
+    /** Run goal per day (Time Bank "run" action) and the basis of the weekly run-distance target. */
+    const val RUN_GOAL_KM = 5
+    /** Days with a workout per week that the consistency tier x1.35 is built around. Weekly workout target. */
+    const val WORKOUT_DAYS_TARGET = 4
+
     /** CONFIRM: streak day qualifies when at least this many focus minutes were completed (today: any > 0). */
     const val STREAK_MIN_FOCUS_MINUTES = 1
     /** CONFIRM: XP values mirror existing [Rewards]/[StudyLogic] constants. */
@@ -22,6 +35,17 @@ object ProgressionPolicy {
     const val STUDY_DAILY_CAP = StudyLogic.XP_DAILY_CAP
 
     fun streakQualifies(focusMinutes: Int) = focusMinutes >= STREAK_MIN_FOCUS_MINUTES
+
+    /**
+     * Consistency multiplier for workouts, from the number of days with a workout in the last 7 (today included).
+     * Applies to workout Time Bank minutes and workout XP. 1 day = x1.0, 2-3 = x1.2, 4-5 = x1.35, 6-7 = x1.5.
+     */
+    fun consistencyMultiplier(daysWithWorkoutIn7: Int): Double = when {
+        daysWithWorkoutIn7 >= 6 -> 1.5
+        daysWithWorkoutIn7 >= 4 -> 1.35
+        daysWithWorkoutIn7 >= 2 -> 1.2
+        else -> 1.0
+    }
 }
 
 /** One recorded XP movement; [id] makes it idempotent. */

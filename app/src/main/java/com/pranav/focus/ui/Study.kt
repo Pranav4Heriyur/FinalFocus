@@ -73,6 +73,7 @@ sealed class SR {
     data class Sub(val subject: Subject) : SR()
     data class Chap(val id: Int) : SR()
     object MockLog : SR()
+    object MockTrend : SR()
     data class MockRes(val id: Long) : SR()
     data class Notebook(val subject: Subject? = null) : SR()
     object Stats : SR()
@@ -97,6 +98,7 @@ fun StudyRoot(go: (Screen) -> Unit) {
         mutableStateListOf<SR>(SR.Hub).also { st ->
             // Arrived from the "session complete" screen: open Quick Log pre-filled from the planner task that was just focused.
             val store = Store.get(ctx)
+            if (store.str("study_open") == "mock_trend") { store.putStr("study_open", ""); st.add(SR.MockTrend) }
             if (store.int("study_prefill") == 1) {
                 store.putInt("study_prefill", 0)
                 val tid = store.str("last_session_task")
@@ -122,6 +124,7 @@ fun StudyRoot(go: (Screen) -> Unit) {
             is SR.Sub -> SubjectDetail(data, r.subject, ::pop, ::push)
             is SR.Chap -> ChapterDetail(data, r.id, ::pop, ::push, bump)
             SR.MockLog -> MockLogScreen(data, ::pop) { id -> stack.removeAt(stack.lastIndex); push(SR.MockRes(id)); bump() }
+            SR.MockTrend -> MockTrendScreen(data, ::pop, ::push)
             is SR.MockRes -> MockResult(data, r.id, ::pop, ::push)
             is SR.Notebook -> Notebook(data, r.subject, ::pop, bump)
             SR.Stats -> StatsScreen2(data, ::pop)
@@ -234,6 +237,16 @@ private fun StudyHub(d: SData, push: (SR) -> Unit) {
                     if (last != null && prev != null) DeltaChip(last.score - prev.score)
                     Ico(R.drawable.p1_chevron_right, 18.dp, C.Text2, Modifier.padding(start = 8.dp))
                 }
+            }
+        }
+        SectionCard(onClick = { push(SR.MockTrend) }, pad = 14.dp, radius = 20.dp) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Ico(R.drawable.p1_stats_bars, 22.dp)
+                Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
+                    Text("Mock trend", color = C.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Score graph over time, per subject, against target", color = C.Text2, fontSize = 12.sp)
+                }
+                Ico(R.drawable.p1_chevron_right, 18.dp, C.Text2)
             }
         }
         SectionCard(onClick = { push(SR.Syllabus) }, pad = 14.dp, radius = 20.dp) {
@@ -609,6 +622,103 @@ private fun MockResult(d: SData, id: Long, back: () -> Unit, push: (SR) -> Unit)
         PrimaryButton("Review mistakes", modifier = Modifier.weight(1f)) { push(SR.Notebook()) }
         GhostButton("Take another test", modifier = Modifier.weight(1f)) { push(SR.MockLog) }
     }
+    Spacer(Modifier.height(10.dp))
+    GhostButton("View score trend", modifier = Modifier.fillMaxWidth()) { push(SR.MockTrend) }
+}
+
+// ---------------------------------------------------------------------------------------
+// B4C Mock trend: score over time, per subject, against target
+// ---------------------------------------------------------------------------------------
+@Composable
+private fun MockTrendScreen(d: SData, back: () -> Unit, push: (SR) -> Unit) {
+    StudyTopBar("Mock Trend", "Score out of 720, oldest to latest", back)
+    if (d.mocks.isEmpty()) {
+        SectionCard(pad = 14.dp, radius = 20.dp) {
+            Text("No mock tests yet", color = C.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Text("Log a test to start the graph.", color = C.Text2, fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))
+        }
+        Spacer(Modifier.height(12.dp))
+        PrimaryButton("Log a mock test") { push(SR.MockLog) }
+        return
+    }
+    val seq = d.mocks.asReversed()          // oldest first, for the chart
+    val target = d.db.targetScore
+    val latest = d.mocks.first()
+    val prev = d.mocks.getOrNull(1)
+    val best = d.mocks.maxOf { it.score }
+    val last3 = d.mocks.take(3)
+    val avg3 = last3.sumOf { it.score } / last3.size
+    val gap = target - latest.score
+
+    SectionCard(pad = 14.dp, radius = 20.dp) {
+        Row(Modifier.fillMaxWidth()) {
+            StatCell("${latest.score}", "Latest", Modifier.weight(1f), sub = "of 720")
+            StatCell("$best", "Best", Modifier.weight(1f), sub = "all tests")
+            StatCell("$avg3", "Average of last ${last3.size}", Modifier.weight(1f))
+        }
+        Row(Modifier.fillMaxWidth().padding(top = 12.dp)) {
+            StatCell(if (gap > 0) "$gap" else "Reached", "To target", Modifier.weight(1f), sub = "target $target")
+            StatCell("${d.mocks.size}", "Tests taken", Modifier.weight(1f))
+        }
+    }
+
+    Spacer(Modifier.height(12.dp))
+    var view by remember { mutableIntStateOf(0) }   // 0 = total, 1..3 = one subject
+    SegFull(listOf("Total") + Subject.values().map { it.label }, view) { view = it }
+
+    val subj = if (view == 0) null else Subject.values()[view - 1]
+    val pts = seq.map { m ->
+        val v = if (subj == null) m.score / 720f else m.marks(subj.ordinal) / subj.maxMarks.toFloat()
+        v.coerceIn(0f, 1f)
+    }
+    val series: List<List<Float?>> = if (subj == null) listOf(pts, seq.map { (target / 720f).coerceIn(0f, 1f) }) else listOf(pts)
+    SectionCard(pad = 14.dp, radius = 20.dp) {
+        if (seq.size < 2) {
+            Text("Take a second test to see a trend.", color = C.Text2, fontSize = 13.sp)
+        } else {
+            LineChart(series, Modifier.fillMaxWidth().height(180.dp), dashed = true)
+            Row(Modifier.fillMaxWidth().padding(top = 6.dp)) {
+                Text(seq.first().date, color = C.Text2, fontSize = 11.sp, modifier = Modifier.weight(1f))
+                Text(seq.last().date, color = C.Text2, fontSize = 11.sp)
+            }
+            Text(
+                if (subj == null) "Solid line: your score. Dashed line: target $target." else "Solid line: ${subj.label} marks as a share of ${subj.maxMarks}.",
+                color = C.Text3, fontSize = 11.sp, modifier = Modifier.padding(top = 8.dp),
+            )
+        }
+    }
+
+    prev?.let { p ->
+        val changes = Subject.values().map { s -> s to (latest.marks(s.ordinal) - p.marks(s.ordinal)) }
+        val up = changes.maxByOrNull { it.second }!!
+        val down = changes.minByOrNull { it.second }!!
+        fun signed(x: Int) = if (x >= 0) "+$x" else "$x"
+        Spacer(Modifier.height(12.dp))
+        SectionCard(pad = 14.dp, radius = 20.dp) {
+            Text("Since the previous test", color = C.Text2, fontSize = 12.sp)
+            Text("Total ${signed(latest.score - p.score)}", color = C.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 4.dp))
+            Text("Best change: ${up.first.label} ${signed(up.second)} · Worst: ${down.first.label} ${signed(down.second)}", color = C.Text2, fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))
+        }
+    }
+
+    Spacer(Modifier.height(14.dp))
+    Text("Every test", color = C.Text2, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp, bottom = 4.dp))
+    d.mocks.forEachIndexed { i, m ->
+        val p = d.mocks.getOrNull(i + 1)
+        Spacer(Modifier.height(8.dp))
+        SectionCard(pad = 12.dp, radius = 18.dp, onClick = { push(SR.MockRes(m.id)) }) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(m.name, color = C.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    Text(m.date, color = C.Text2, fontSize = 12.sp)
+                }
+                Text("${m.score}", color = C.White, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                if (p != null) DeltaChip(m.score - p.score)
+            }
+        }
+    }
+    Spacer(Modifier.height(16.dp))
+    PrimaryButton("Log a mock test") { push(SR.MockLog) }
 }
 
 // ---------------------------------------------------------------------------------------

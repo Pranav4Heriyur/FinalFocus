@@ -340,7 +340,7 @@ fun NewRuleScreen(back: () -> Unit) {
 // A10 Time Bank
 // --------------------------------------------------------------------------------------
 @Composable
-fun TimeBankScreen(back: () -> Unit, onRules: () -> Unit, onFocus: () -> Unit) {
+fun TimeBankScreen(back: () -> Unit, onRules: () -> Unit, onFocus: () -> Unit, onSetup: () -> Unit = {}) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val tick = AppState.dataTick + AppState.tick
@@ -364,6 +364,10 @@ fun TimeBankScreen(back: () -> Unit, onRules: () -> Unit, onFocus: () -> Unit) {
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
         ScreenHeader("Time Bank", back, "Earn it. Then spend it.")
+        if (!AppState.coreReady) {
+            GateBanner("Rules can't block yet", "Turn on Accessibility and display-over-apps so limits and top-ups take effect.", "Fix", onSetup)
+            Spacer(Modifier.height(12.dp))
+        }
         FocusCard(Modifier.fillMaxWidth()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
@@ -384,6 +388,39 @@ fun TimeBankScreen(back: () -> Unit, onRules: () -> Unit, onFocus: () -> Unit) {
             Spacer(Modifier.height(8.dp))
             Text("Earned today ${earned}m · Top-ups ${spent}m" + if (penalty > 0) " · Penalty −${penalty}m" else "",
                 color = C.Text2, fontSize = 13.sp)
+        }
+        Spacer(Modifier.height(12.dp))
+        val earnedBy = remember(tick, bump) {
+            store.ledger.all().filter { it.day == store.today() && it.type == com.pranav.focus.data.LedgerType.EARN }
+                .groupBy { it.ref }.mapValues { e -> e.value.sumOf { it.delta } }
+        }
+        val sourceLabel = mapOf("focus" to "Focus sessions", "run" to "Run goal", "workout" to "Workout goal", "study" to "Study goal")
+        Spacer(Modifier.height(12.dp))
+        SectionCard(pad = 14.dp, radius = 22.dp) {
+            Caps("Earned today, by source")
+            if (earnedBy.isEmpty()) {
+                Text("Nothing yet. Focus sessions, a run, a workout or 60 study questions all earn minutes.", color = C.Text2, fontSize = 13.sp, modifier = Modifier.padding(top = 8.dp))
+            } else earnedBy.entries.sortedByDescending { it.value }.forEach { (ref, mins) ->
+                Row(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                    Text(sourceLabel[ref] ?: ref, color = C.White, fontSize = 14.sp, modifier = Modifier.weight(1f))
+                    Text("+$mins min", color = C.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                }
+            }
+        }
+        val wkFlags = remember(tick) { (6L downTo 0L).map { store.workoutsOn(com.pranav.focus.data.AppClock.today().minusDays(it).toString()) > 0 } }
+        val wkDays = wkFlags.count { it }
+        val wkMult = com.pranav.focus.data.ProgressionPolicy.consistencyMultiplier(wkDays)
+        FocusCard(Modifier.fillMaxWidth()) {
+            Caps("Workout consistency · last 7 days")
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text("$wkDays", color = C.White, fontSize = 40.sp, fontWeight = FontWeight.Bold)
+                Text(" / 7 days with a workout", color = C.Text2, fontSize = 14.sp, modifier = Modifier.padding(bottom = 8.dp))
+            }
+            Row(Modifier.fillMaxWidth().padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                wkFlags.forEach { on -> Box(Modifier.weight(1f).height(6.dp).clip(CircleShape).background(if (on) C.White else C.Track)) }
+            }
+            Text("Bonus on workout minutes and workout XP: ×${"%.2f".format(wkMult)}", color = C.White, fontSize = 13.sp, modifier = Modifier.padding(top = 10.dp))
+            Text("1 day ×1.00 · 2–3 days ×1.20 · 4–5 days ×1.35 · 6–7 days ×1.50", color = C.Text3, fontSize = 11.sp, modifier = Modifier.padding(top = 4.dp))
         }
         Spacer(Modifier.height(12.dp))
         FocusCard(Modifier.fillMaxWidth()) {

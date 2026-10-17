@@ -28,6 +28,8 @@ object Rewards {
     const val XP_PER_FOCUS_MINUTE = 2
     const val QUIT_XP_PENALTY = 50
     const val ACTION_XP = 10
+    /** Base XP for one completed in-app workout, before the consistency multiplier. */
+    const val WORKOUT_XP = 20
     const val RULE_XP = 20
     const val REVIEW_ITEM_XP = 5
     const val MISSED_ITEM_PENALTY_MIN = 10

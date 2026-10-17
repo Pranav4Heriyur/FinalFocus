@@ -43,6 +43,10 @@ import com.pranav.focus.ui.SessionScreen
 import com.pranav.focus.ui.SetupScreen
 import com.pranav.focus.ui.TAB_SCREENS
 import com.pranav.focus.ui.TabBar
+import com.pranav.focus.ui.StatsHub
+import com.pranav.focus.ui.StatsNav
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 
 class MainActivity : ComponentActivity() {
     private val roleLauncher =
@@ -53,6 +57,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Store.get(this).ensureDefaults(Allowed.DEFAULT_PACKAGES.filter { Allowed.isInstalled(this, it) }.toSet())
+        // Roll the weekly focus target over at app start, not only when the Rank screen happens to open.
+        com.pranav.focus.data.Weekly.rollover(Store.get(this))
         AppState.blockedPkg = intent?.getStringExtra("blocked_pkg")
         AppState.locked = Store.get(this).biometricLock
         com.pranav.focus.lock.Reminder.schedule(this)
@@ -118,14 +124,30 @@ class MainActivity : ComponentActivity() {
     private fun Root() {
         val store = remember { Store.get(this) }
         var setupDone by remember { mutableStateOf(store.setupDone) }
-        val stack = remember { mutableStateListOf(Screen.Home) }
+        // One back stack per tab: leaving a tab and coming back restores where you were inside it.
+        val tabStacks = remember {
+            mutableStateMapOf<Screen, SnapshotStateList<Screen>>().also { m ->
+                (TAB_SCREENS + Screen.Focus).forEach { t -> m[t] = mutableStateListOf(t) }
+            }
+        }
+        var currentTab by remember { mutableStateOf(Screen.Home) }
+        val stack = tabStacks.getValue(currentTab)
         val screen = stack.last()
         val active = AppState.active
         val summary = AppState.summary
         val blocked = AppState.blockedPkg
 
-        fun go(s: Screen) {
-            if (s in TAB_SCREENS || s == Screen.Focus) { stack.clear(); stack.add(s); return }
+        fun go(target: Screen) {
+            var s = target
+            // Study and the workout stats now live inside the Stats tab as sub-tabs.
+            if (s == Screen.Study) { StatsNav.tab = 1; s = Screen.Stats }
+            if (s == Screen.WorkoutStats) { StatsNav.tab = 2; s = Screen.Stats }
+            if (s in tabStacks.keys) {
+                // Tab root: switch to it. Tapping the tab you are already on returns it to its root.
+                if (s == currentTab) { val st = tabStacks.getValue(s); while (st.size > 1) st.removeAt(st.lastIndex) }
+                else currentTab = s
+                return
+            }
             if (stack.last() == s) return                                   // double tap: never stack the same screen twice
             if (s in WORKOUT_SINGLETONS) {                                  // list/summary destinations exist once on the back stack: return to the existing one instead of looping
                 val i = stack.lastIndexOf(s)
@@ -133,7 +155,10 @@ class MainActivity : ComponentActivity() {
             }
             stack.add(s)
         }
-        fun back() { if (stack.size > 1) stack.removeAt(stack.lastIndex) else if (stack.last() != Screen.Home) { stack.clear(); stack.add(Screen.Home) } }
+        fun back() {
+            if (stack.size > 1) stack.removeAt(stack.lastIndex)
+            else if (currentTab != Screen.Home) currentTab = Screen.Home     // Back on a tab root goes to Home
+        }
 
         androidx.compose.runtime.LaunchedEffect(AppState.openMirror) {
             if (AppState.openMirror) { AppState.openMirror = false; go(Screen.Mirror) }
@@ -188,10 +213,10 @@ class MainActivity : ComponentActivity() {
                             when (screen) {
                                 Screen.Home -> HomeScreen { go(it) }
                                 Screen.Focus -> FocusStartScreen { go(it) }
-                                Screen.Study -> com.pranav.focus.ui.StudyRoot { go(it) }
+                                Screen.Study -> StatsHub({ go(it) }, { back() })
                                 Screen.Workout, Screen.WorkoutPlans, Screen.WorkoutRoutine, Screen.WorkoutCreate, Screen.WorkoutDay, Screen.WorkoutAdd, Screen.WorkoutSet, Screen.WorkoutLibrary, Screen.WorkoutActive, Screen.WorkoutComplete, Screen.WorkoutStats, Screen.WorkoutHistory, Screen.WorkoutDetail ->
                                     com.pranav.focus.workout.WorkoutHost(screen, { go(it) }, { back() })
-                                Screen.Stats -> com.pranav.focus.ui.StatsScreen { go(it) }
+                                Screen.Stats -> StatsHub({ go(it) }, { back() })
                                 Screen.Profile -> com.pranav.focus.ui.ProfileScreenRef { go(it) }
                                 Screen.Apps -> AppsScreen { back() }
                                 Screen.Callers -> CallersScreen { back() }
@@ -207,10 +232,10 @@ class MainActivity : ComponentActivity() {
                                 Screen.Plan, Screen.PlanSubjects, Screen.PlanAdd, Screen.PlanEdit, Screen.PlanReorder,
                                 Screen.PlanDetail, Screen.PlanCalendar, Screen.PlanFocus, Screen.PlanSummary, Screen.PlanSettings ->
                                     com.pranav.focus.ui.PlanHost(screen, { go(it) }, { back() })
-                                Screen.TimeBank -> TimeBankScreen({ back() }, { go(Screen.Rules) }, { go(Screen.Focus) })
+                                Screen.TimeBank -> TimeBankScreen({ back() }, { go(Screen.Rules) }, { go(Screen.Focus) }, { go(Screen.Setup) })
                             }
                         }
-                        if (showBar) TabBar(if (screen == Screen.WorkoutPlans) Screen.Workout else screen) { go(it) }
+                        if (showBar) TabBar(if (screen == Screen.WorkoutPlans) Screen.Workout else currentTab) { go(it) }
                     }
                 }
             }

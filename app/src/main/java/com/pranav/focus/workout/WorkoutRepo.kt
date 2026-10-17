@@ -538,6 +538,11 @@ class WorkoutRepo(private val db: SqlRunner, private val clock: () -> Long = { S
         db.exec("INSERT OR REPLACE INTO body_weight_log(date, kg, ts) VALUES(?,?,?)", date.toString(), kg, clock())
     }
 
+    /** Number of completed in-app workouts whose start is in [fromMs, toMs). Used by Time Bank and XP. */
+    fun completedCountBetween(fromMs: Long, toMs: Long): Int =
+        db.query("SELECT COUNT(*) AS n FROM workout_session WHERE status = 'completed' AND ended_at IS NOT NULL AND started_at >= ? AND started_at < ?", fromMs, toMs)
+            .firstOrNull()?.long("n")?.toInt() ?: 0
+
     fun latestBodyWeight(): Pair<String, Double>? = db.query("SELECT date, kg FROM body_weight_log ORDER BY date DESC LIMIT 1").firstOrNull()?.let { it.str("date") to it.dbl("kg") }
 
     /** Completed sessions with started_at in [fromMs, toMs). Volume = sum(load x reps) over non-warm-up sets. */

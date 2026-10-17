@@ -99,6 +99,10 @@ fun FocusStartScreen(go: (Screen) -> Unit) {
     Column(Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             ScreenHeader("Start Focus Session", { go(Screen.Home) }, "Choose a time, set your focus, and lock in.")
+            if (!AppState.coreReady) {
+                GateBanner("Blocking is off", "Accessibility or display-over-apps permission is missing, so apps won't be blocked.", "Fix") { go(Screen.Setup) }
+                Spacer(Modifier.height(12.dp))
+            }
             MinutePicker(minutes) { d -> minutes = (minutes + d).coerceIn(5, 240) }
 
             Text("Session name", color = C.Text2, fontSize = 14.sp, modifier = Modifier.padding(start = 4.dp, bottom = 6.dp))
