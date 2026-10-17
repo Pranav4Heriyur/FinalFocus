@@ -254,7 +254,7 @@ private fun BuilderRow(l: Line, index: Int, count: Int, onMove: (Int, Int) -> Un
         }
         Box {
             Box(Modifier.size(44.dp).clickable(role = Role.Button) { menu = true }.semantics { contentDescription = "Exercise options" }, contentAlignment = Alignment.Center) { Ico(R.drawable.plan_ic_more, 20.dp, C.White) }
-            DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+            DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, modifier = Modifier.background(C.Sheet)) {
                 DropdownMenuItem(text = { Text("Edit sets / reps / rest", color = C.White) }, onClick = { menu = false; onEdit() })
                 if (index > 0) DropdownMenuItem(text = { Text("Move up", color = C.White) }, onClick = { menu = false; onMove(index, index - 1) })
                 if (index < count - 1) DropdownMenuItem(text = { Text("Move down", color = C.White) }, onClick = { menu = false; onMove(index, index + 1) })

@@ -268,7 +268,7 @@ fun WorkoutActiveScreen(go: (Screen) -> Unit, back: () -> Unit) {
                 if (inProgress) Text(session.title, color = C.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, modifier = Modifier.weight(1f).padding(horizontal = 14.dp)) else Spacer(Modifier.weight(1f))
                 Box {
                     RoundBtn("More options", R.drawable.plan_ic_more) { menu = true }
-                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, modifier = Modifier.background(C.Sheet)) {
                         DropdownMenuItem(text = { Text("Add exercise", color = C.White) }, onClick = { menu = false; addOpen = true })
                         DropdownMenuItem(text = { Text("Finish workout", color = C.White) }, onClick = { menu = false; finishOpen = true })
                         DropdownMenuItem(text = { Text("Exit workout", color = C.White) }, onClick = { menu = false; requestExit() })
