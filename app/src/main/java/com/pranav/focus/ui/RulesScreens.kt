@@ -374,7 +374,7 @@ fun TimeBankScreen(back: () -> Unit, onRules: () -> Unit, onFocus: () -> Unit, o
                     Caps("Available now")
                     val shown by androidx.compose.animation.core.animateFloatAsState(bank.toFloat(), androidx.compose.animation.core.tween(450), label = "bank")
                     Row(verticalAlignment = Alignment.Bottom) {
-                        Text("${shown.toInt()}", color = C.White, fontSize = 56.sp, lineHeight = 60.sp, fontWeight = FontWeight.Bold)
+                        Text("${shown.toInt()}", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 56.sp, lineHeight = 60.sp, fontWeight = FontWeight.Bold)
                         Text(" min", color = C.Text2, fontSize = 20.sp, modifier = Modifier.padding(bottom = 10.dp))
                     }
                 }
@@ -413,7 +413,7 @@ fun TimeBankScreen(back: () -> Unit, onRules: () -> Unit, onFocus: () -> Unit, o
         FocusCard(Modifier.fillMaxWidth()) {
             Caps("Workout consistency · last 7 days")
             Row(verticalAlignment = Alignment.Bottom) {
-                Text("$wkDays", color = C.White, fontSize = 40.sp, fontWeight = FontWeight.Bold)
+                Text("$wkDays", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 40.sp, fontWeight = FontWeight.Bold)
                 Text(" / 7 days with a workout", color = C.Text2, fontSize = 14.sp, modifier = Modifier.padding(bottom = 8.dp))
             }
             Row(Modifier.fillMaxWidth().padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -510,7 +510,7 @@ fun TimeBankScreen(back: () -> Unit, onRules: () -> Unit, onFocus: () -> Unit, o
         containerColor = C.Sheet,
         title = { Text("How the Time Bank works", color = C.White) },
         text = {
-            Text("Locked apps stay shut until you earn time. Verified effort (focus sessions, Strava runs, workouts, study) adds minutes. " +
+            Text("Locked apps stay shut until you earn time. Verified effort (focus sessions, runs, workouts, study) adds minutes. " +
                 "Each app can have a free daily base that resets at local midnight; saved minutes carry over. When the base runs out you may confirm a top-up. Study time on approved YouTube channels never costs base or bank minutes. Missed Accountability Mirror items cost 10 minutes tomorrow. Manual entries never earn time.",
                 color = C.Text2, fontSize = 14.sp)
         },
@@ -528,7 +528,7 @@ fun BlockedScreen(pkg: String, onFocus: () -> Unit, onBank: () -> Unit, onHome: 
     Column(Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         AppIcon(pkg, 72.dp)
         Spacer(Modifier.height(20.dp))
-        Text(appLabel(ctx, pkg), color = C.White, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
+        Text(appLabel(ctx, pkg), color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
         Text(if (always) "Always blocked." else "Locked. Earn time to open it.", color = C.Text2, fontSize = 16.sp)
         Spacer(Modifier.height(8.dp))
         Text("${store.bankMinutes} min in your Time Bank", color = C.Text3, fontSize = 13.sp)

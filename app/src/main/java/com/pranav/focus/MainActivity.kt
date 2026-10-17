@@ -139,9 +139,8 @@ class MainActivity : ComponentActivity() {
 
         fun go(target: Screen) {
             var s = target
-            // Study and the workout stats now live inside the Stats tab as sub-tabs.
-            if (s == Screen.Study) { StatsNav.tab = 1; s = Screen.Stats }
-            if (s == Screen.WorkoutStats) { StatsNav.tab = 2; s = Screen.Stats }
+            // Workout stats live inside the Stats tab as a sub-tab. Study is its own tab.
+            if (s == Screen.WorkoutStats) { StatsNav.tab = 1; s = Screen.Stats }
             if (s in tabStacks.keys) {
                 // Tab root: switch to it. Tapping the tab you are already on returns it to its root.
                 if (s == currentTab) { val st = tabStacks.getValue(s); while (st.size > 1) st.removeAt(st.lastIndex) }
@@ -213,7 +212,7 @@ class MainActivity : ComponentActivity() {
                             when (screen) {
                                 Screen.Home -> HomeScreen { go(it) }
                                 Screen.Focus -> FocusStartScreen { go(it) }
-                                Screen.Study -> StatsHub({ go(it) }, { back() })
+                                Screen.Study -> com.pranav.focus.ui.StudyRoot { go(it) }
                                 Screen.Workout, Screen.WorkoutPlans, Screen.WorkoutRoutine, Screen.WorkoutCreate, Screen.WorkoutDay, Screen.WorkoutAdd, Screen.WorkoutSet, Screen.WorkoutLibrary, Screen.WorkoutActive, Screen.WorkoutComplete, Screen.WorkoutStats, Screen.WorkoutHistory, Screen.WorkoutDetail ->
                                     com.pranav.focus.workout.WorkoutHost(screen, { go(it) }, { back() })
                                 Screen.Stats -> StatsHub({ go(it) }, { back() })

@@ -145,12 +145,12 @@ fun WorkoutHubScreen(go: (Screen) -> Unit) {
             Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) { Ico(wkIco("calendar"), 16.dp, C.Text2); Spacer(Modifier.width(8.dp)); Text("TODAY", color = C.Text2, fontSize = 11.sp, letterSpacing = 1.2.sp) }
                 if (primary == null) {
-                    Text("Rest day", color = C.White, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+                    Text("Rest day", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 26.sp, fontWeight = FontWeight.Bold)
                     Text(if (d.plan == null) "No active plan. Create one in Plans." else "Nothing scheduled in slot ${d.todaySlot} of 7.", color = C.Text2, fontSize = 14.sp)
                     Spacer(Modifier.height(130.dp))
                     WkButton("Open Plans", Modifier.fillMaxWidth(), icon = wkIco("layers")) { go(Screen.WorkoutPlans) }
                 } else {
-                    Text("${primary.code} · ${primary.name}", color = C.White, fontSize = 26.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold)
+                    Text("${primary.code} · ${primary.name}", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 26.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold)
                     val meta = if (primary.isGym) "${primary.focus.substringBefore(" •")} • ${d.todayLineCount} exercises • ~ ${d.todayMinutes} min" else primary.labelHub
                     Text(meta, color = C.Text2, fontSize = 14.sp)
                     if (gymToday != null && morningToday != null) Text("Morning: ${morningToday.code} · ${morningToday.name}", color = C.Text2, fontSize = 13.sp)

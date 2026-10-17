@@ -24,25 +24,21 @@ import com.pranav.focus.data.Store
 import com.pranav.focus.data.Weekly
 import com.pranav.focus.lock.AppState
 
-/** Which Stats sub-tab is showing. Study and workout stats are reached through here. */
+/** Which Stats sub-tab is showing. Workout stats are reached through here. */
 object StatsNav {
-    var tab by mutableIntStateOf(0)   // 0 Overview, 1 Study, 2 Workouts
+    var tab by mutableIntStateOf(0)   // 0 Overview, 1 Workouts
 }
 
-/**
- * The single Stats tab. Sub-tabs keep the Study and Workout screens exactly as they were;
- * they just live here now instead of in their own bottom-bar slot or the Workout hub.
- */
+/** The Stats tab: overview and workout stats. Study has its own tab now. */
 @Composable
 fun StatsHub(go: (Screen) -> Unit, back: () -> Unit) {
     Column(Modifier.fillMaxSize()) {
         Box(Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp)) {
-            SegFull(listOf("Overview", "Study", "Workouts"), StatsNav.tab) { StatsNav.tab = it }
+            SegFull(listOf("Overview", "Workouts"), StatsNav.tab) { StatsNav.tab = it }
         }
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (StatsNav.tab) {
-                1 -> StudyRoot(go)
-                2 -> com.pranav.focus.workout.WorkoutStatsScreen(back)
+                1 -> com.pranav.focus.workout.WorkoutStatsScreen(back)
                 else -> StatsScreen(go)
             }
         }
@@ -59,7 +55,7 @@ fun WeeklyTargetCard(store: Store) {
     SectionCard(pad = 16.dp, radius = 22.dp) {
         Caps("Weekly focus target")
         Row(verticalAlignment = Alignment.Bottom) {
-            Text(Fmt.hm(achieved), color = C.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(Fmt.hm(achieved), color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 28.sp, fontWeight = FontWeight.Bold)
             Text(" of ${Fmt.hm(target)} this week", color = C.Text2, fontSize = 13.sp, modifier = Modifier.padding(bottom = 4.dp))
         }
         SlimBar(frac, Modifier.fillMaxWidth().padding(top = 10.dp), 6.dp)

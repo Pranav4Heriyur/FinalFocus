@@ -44,8 +44,18 @@ import com.pranav.focus.R
 import com.pranav.focus.ui.C
 import com.pranav.focus.ui.Ico
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.input.KeyboardType
+import com.pranav.focus.ui.fieldColors
 
-private fun fmt(v: Double) = if (v == Math.floor(v)) v.toInt().toString() else v.toString()
+private fun fmt(v: Double): String {
+    val r = Math.round(v * 10) / 10.0
+    return if (r == Math.floor(r)) r.toInt().toString() else r.toString()
+}
 
 /**
  * C9 — Set Entry, wired to the active session. Every logged set is written immediately (survives process death); reopening
@@ -148,7 +158,7 @@ fun WorkoutSetEntryScreen(back: () -> Unit) {
         WkCard {
             Row(verticalAlignment = Alignment.Top) {
                 Column(Modifier.weight(1f)) {
-                    Text(line.name, color = C.White, fontSize = 24.sp, lineHeight = 28.sp, fontWeight = FontWeight.Bold)
+                    Text(line.name, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 24.sp, lineHeight = 28.sp, fontWeight = FontWeight.Bold)
                     Text("${line.equipment} • ${line.muscleTag}", color = C.Text2, fontSize = 14.sp)
                 }
                 WkButton("Exercise Info", icon = wkIco("info"), height = 44.dp) { infoOpen = true }
@@ -168,12 +178,12 @@ fun WorkoutSetEntryScreen(back: () -> Unit) {
         // ---- set entry ----
         WkCard {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Set $setNo of ${line.sets}", color = C.White, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                Text("Set $setNo of ${line.sets}", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
             }
             Spacer(Modifier.height(12.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-                ValueColumn("kg", fmt(kg), listOf(fmt((kg - 5).coerceAtLeast(0.0)), fmt((kg - 2.5).coerceAtLeast(0.0))), listOf(fmt(kg + 2.5), fmt(kg + 5)), { kg = (kg - 2.5).coerceAtLeast(0.0) }, { kg += 2.5 }, Modifier.weight(1f))
-                ValueColumn(unit, "$reps", listOf("${(reps - 2).coerceAtLeast(0)}", "${(reps - 1).coerceAtLeast(0)}"), listOf("${reps + 1}", "${reps + 2}"), { reps = (reps - 1).coerceAtLeast(0) }, { reps += 1 }, Modifier.weight(1f))
+                ValueColumn("kg", kg, 2.5, decimal = true, onSet = { kg = it.coerceAtLeast(0.0) }, onMinus = { kg = (kg - 2.5).coerceAtLeast(0.0) }, onPlus = { kg += 2.5 }, modifier = Modifier.weight(1f))
+                ValueColumn(unit, reps.toDouble(), 1.0, decimal = false, onSet = { reps = it.toInt().coerceAtLeast(0) }, onMinus = { reps = (reps - 1).coerceAtLeast(0) }, onPlus = { reps += 1 }, modifier = Modifier.weight(1f))
             }
             Spacer(Modifier.height(12.dp))
             val quick = listOf("+2.5 kg" to { kg += 2.5 }, "+5 kg" to { kg += 5.0 }, "−2.5 kg" to { kg = (kg - 2.5).coerceAtLeast(0.0) }, "−5 kg" to { kg = (kg - 5).coerceAtLeast(0.0) },
@@ -230,7 +240,7 @@ fun WorkoutSetEntryScreen(back: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Ico(wkIco("timer"), 26.dp, C.White); Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) { Text("Rest Timer", color = C.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold); Text(if (line.restS > 0) line.rest else "No rest", color = C.Text2, fontSize = 13.sp) }
-                Text(String.format(java.util.Locale.US, "%02d:%02d", restLeft / 60, restLeft % 60), color = C.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                Text(String.format(java.util.Locale.US, "%02d:%02d", restLeft / 60, restLeft % 60), color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 30.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.width(10.dp))
                 Box(Modifier.size(52.dp).clip(CircleShape).background(C.White).clickable(role = Role.Button) {
                     when {
@@ -252,18 +262,80 @@ fun WorkoutSetEntryScreen(back: () -> Unit) {
     }
 }
 
+/**
+ * One set value (kg or reps). Drag up or down to rotate it like the timer dial, one [step] per 26 dp.
+ * Double-tap the number to type an exact value. The +/- buttons stay as they were.
+ */
 @Composable
-private fun ValueColumn(label: String, value: String, above: List<String>, below: List<String>, onMinus: () -> Unit, onPlus: () -> Unit, modifier: Modifier) {
+private fun ValueColumn(
+    label: String, value: Double, step: Double, decimal: Boolean,
+    onSet: (Double) -> Unit, onMinus: () -> Unit, onPlus: () -> Unit, modifier: Modifier,
+) {
+    val setCb = rememberUpdatedState(onSet)
+    val latest = rememberUpdatedState(value)
+    val stepPx = with(androidx.compose.ui.platform.LocalDensity.current) { 26.dp.toPx() }
+    val drag = remember { floatArrayOf(0f) }        // pixels dragged since the last step
+    val base = remember { doubleArrayOf(0.0) }      // value while a drag is running
+    var typing by remember { mutableStateOf(false) }
+
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             RoundBtn("Decrease $label", R.drawable.ic_remove, onMinus)
-            Column(Modifier.width(76.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                above.forEach { Text(it, color = C.Text3, fontSize = 15.sp, textAlign = TextAlign.Center) }
-                Text(value, color = C.White, fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(C.Raised).padding(horizontal = 10.dp, vertical = 4.dp))
-                below.forEach { Text(it, color = C.Text3, fontSize = 15.sp, textAlign = TextAlign.Center) }
+            Column(
+                Modifier.width(76.dp)
+                    .pointerInput(Unit) { detectTapGestures(onDoubleTap = { typing = true }) }
+                    .pointerInput(Unit) {
+                        detectVerticalDragGestures(
+                            onDragStart = { base[0] = latest.value; drag[0] = 0f },
+                            onDragEnd = { drag[0] = 0f },
+                            onDragCancel = { drag[0] = 0f },
+                        ) { _, dy ->
+                            drag[0] += dy
+                            while (drag[0] <= -stepPx) { base[0] = (base[0] + step).coerceAtLeast(0.0); setCb.value(base[0]); drag[0] += stepPx }
+                            while (drag[0] >= stepPx) { base[0] = (base[0] - step).coerceAtLeast(0.0); setCb.value(base[0]); drag[0] -= stepPx }
+                        }
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                listOf(-2.0, -1.0).forEach { k ->
+                    val x = value + k * step
+                    Text(if (x >= 0) fmt(x) else " ", color = C.Text3, fontSize = 15.sp, textAlign = TextAlign.Center)
+                }
+                Text(
+                    fmt(value), color = C.White, fontSize = 28.sp, fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(C.Raised).padding(horizontal = 10.dp, vertical = 4.dp),
+                )
+                listOf(1.0, 2.0).forEach { k -> Text(fmt(value + k * step), color = C.Text3, fontSize = 15.sp, textAlign = TextAlign.Center) }
             }
             RoundBtn("Increase $label", R.drawable.ic_add, onPlus)
         }
         Text(label, color = C.White, fontSize = 15.sp, modifier = Modifier.padding(top = 4.dp))
+    }
+
+    if (typing) {
+        var txt by remember { mutableStateOf(fmt(value)) }
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { typing = false },
+            containerColor = C.Sheet,
+            title = { Text("Enter $label", color = C.White) },
+            text = {
+                androidx.compose.material3.OutlinedTextField(
+                    value = txt,
+                    onValueChange = { s -> txt = s.filter { it.isDigit() || (decimal && it == '.') } },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = if (decimal) KeyboardType.Decimal else KeyboardType.Number),
+                    colors = fieldColors(),
+                )
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    txt.toDoubleOrNull()?.let { setCb.value(it.coerceAtLeast(0.0)) }
+                    typing = false
+                }) { Text("Set", color = C.White) }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { typing = false }) { Text("Cancel", color = C.Text2) }
+            },
+        )
     }
 }

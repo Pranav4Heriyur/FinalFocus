@@ -69,8 +69,8 @@ fun CompleteScreen(s: SessionSummary, onDone: () -> Unit, onLog: () -> Unit, tas
             }
             Ico(R.drawable.ic_check, 76.dp)
         }
-        Text(formatClock(s.minutes * 60_000L), color = C.White, fontSize = 64.sp, lineHeight = 72.sp, fontWeight = FontWeight.Bold)
-        Text("locked in", color = C.White, fontSize = 28.sp, fontWeight = FontWeight.SemiBold)
+        Text(formatClock(s.minutes * 60_000L), color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 64.sp, lineHeight = 72.sp, fontWeight = FontWeight.Bold)
+        Text("locked in", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 28.sp, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(12.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconTile(subjectIcon(s.subject), size = 40.dp)
@@ -96,7 +96,7 @@ fun CompleteScreen(s: SessionSummary, onDone: () -> Unit, onLog: () -> Unit, tas
                         Caps("Time bank")
                     }
                     Spacer(Modifier.height(8.dp))
-                    Text("+${s.earnedMin} min", color = C.White, fontSize = 48.sp, lineHeight = 56.sp, fontWeight = FontWeight.Bold)
+                    Text("+${s.earnedMin} min", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 48.sp, lineHeight = 56.sp, fontWeight = FontWeight.Bold)
                     Text("added to your Time Bank", color = C.Text2, fontSize = 14.sp)
                 }
                 Ico(R.drawable.ic_layers, 72.dp, C.White.copy(alpha = 0.9f))

@@ -175,7 +175,7 @@ private fun Hero(w: CompletedWorkout) {
         Column(Modifier.align(Alignment.BottomCenter).padding(horizontal = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             CompletionCheck(Modifier.size(56.dp))
             Spacer(Modifier.height(10.dp))
-            Text("WORKOUT COMPLETED", color = C.White, fontSize = 28.sp, lineHeight = 32.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, letterSpacing = 0.5.sp)
+            Text("WORKOUT COMPLETED", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 28.sp, lineHeight = 32.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, letterSpacing = 0.5.sp)
             Text("Great work. Your workout has been saved.", color = C.Text2, fontSize = 14.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 4.dp, bottom = 8.dp))
         }
     }
@@ -280,7 +280,7 @@ private fun PrCelebration(prs: List<CompletedPr>, onContinue: () -> Unit) {
             Spacer(Modifier.weight(1f))
             Box(Modifier.size((96 * pop.value).dp).clip(CircleShape).border(2.dp, C.White.copy(alpha = 0.7f), CircleShape).background(C.Raised), contentAlignment = Alignment.Center) { Ico(wkIco("trophy"), (46 * pop.value).dp) }
             Spacer(Modifier.height(20.dp))
-            Text("NEW PERSONAL RECORD", color = C.White, fontSize = 26.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+            Text("NEW PERSONAL RECORD", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 26.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
             Text(top.name, color = C.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 12.dp))
             Text(prValue(top.newKg, top.newReps), color = C.Text2, fontSize = 15.sp, modifier = Modifier.padding(top = 4.dp))
             Text("+${kgText(top.deltaKg)} kg from previous best", color = Color(0xFF34C759), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 4.dp))

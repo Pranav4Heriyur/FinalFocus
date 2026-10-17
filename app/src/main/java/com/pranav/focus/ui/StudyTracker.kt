@@ -100,7 +100,7 @@ fun Syllabus(d: SData, back: () -> Unit, push: (SR) -> Unit, bump: () -> Unit) {
     val touched = d.active.count { c -> d.logs.any { it.chapterId == c.id } }
     SectionCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Donut(parts.map { it.second }, Modifier.size(112.dp)) { Text("${all.attempted}", color = C.White, fontSize = 22.sp, fontWeight = FontWeight.Medium); Text("attempted", color = C.Text2, fontSize = 10.sp) }
+            Donut(parts.map { it.second }, Modifier.size(112.dp)) { Text("${all.attempted}", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, fontWeight = FontWeight.Medium); Text("attempted", color = C.Text2, fontSize = 10.sp) }
             Column(Modifier.weight(1f).padding(start = 16.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 parts.forEachIndexed { i, (n, v) ->
                     Row(verticalAlignment = Alignment.CenterVertically) {

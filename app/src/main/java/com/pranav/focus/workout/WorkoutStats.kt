@@ -268,7 +268,7 @@ private fun StrengthCard(s: StatsResult) {
 private fun Kpi(icon: Int, value: String, label: String, delta: Delta?, modifier: Modifier) {
     WkCard(modifier, radius = 20.dp, padding = 14.dp) {
         Ico(icon, 20.dp, C.Text2)
-        Text(value, color = C.White, fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 6.dp))
+        Text(value, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 6.dp))
         Text(label, color = C.Text2, fontSize = 12.sp, maxLines = 1)
         delta?.let { DeltaText(it, null) }
     }

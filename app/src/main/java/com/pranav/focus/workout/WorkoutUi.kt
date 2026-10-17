@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import com.pranav.focus.R
 import com.pranav.focus.ui.C
 import com.pranav.focus.ui.Ico
+import com.pranav.focus.ui.glass
 import com.pranav.focus.ui.Inter
 
 /** Shared building blocks for the Workout screens (monochrome FOCUS tokens; routine accents are 6 dp dots only). */
@@ -83,7 +84,7 @@ fun WkPage(
                 trailing()
             }
             if (title != null) Column(Modifier.padding(top = if (onBack != null) 0.dp else 0.dp)) {
-                Text(title, color = C.White, fontSize = 34.sp, lineHeight = 40.sp, fontWeight = FontWeight.Bold)
+                Text(title, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 34.sp, lineHeight = 40.sp, fontWeight = FontWeight.Bold)
                 if (subtitle != null) Text(subtitle, color = C.Text2, fontSize = 15.sp)
             }
             content()
@@ -103,9 +104,8 @@ fun RoundBtn(desc: String, icon: Int, onClick: () -> Unit) {
 
 @Composable
 fun WkCard(modifier: Modifier = Modifier, radius: Dp = 20.dp, padding: Dp = 16.dp, onClick: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
-    val shape = RoundedCornerShape(radius)
     Column(
-        modifier.clip(shape).background(C.Card).border(BorderStroke(1.dp, C.Hairline), shape)
+        modifier.glass(radius)
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier).padding(padding),
         content = content,
     )
@@ -159,7 +159,7 @@ fun SegTabs(options: List<String>, selected: Int, onSelect: (Int) -> Unit) {
 @Composable
 fun SectionTitle(title: String, count: Int? = null, action: String? = null, onAction: () -> Unit = {}) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(title, color = C.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+        Text(title, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
         if (count != null) Text("  ($count)", color = C.Text2, fontSize = 20.sp)
         Spacer(Modifier.weight(1f))
         if (action != null) Row(Modifier.heightIn(min = 48.dp).clickable(role = Role.Button, onClick = onAction), verticalAlignment = Alignment.CenterVertically) {

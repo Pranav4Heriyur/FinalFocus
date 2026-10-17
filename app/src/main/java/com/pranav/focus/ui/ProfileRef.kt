@@ -219,7 +219,7 @@ private fun StatTile(label: String, value: String, unit: String, modifier: Modif
     val shape = RoundedCornerShape(18.dp)
     Column(modifier.clip(shape).background(C.Card).border(1.dp, C.Hairline, shape).padding(horizontal = 12.dp, vertical = 10.dp)) {
         Text(label.uppercase(), color = C.Text2, fontSize = 10.sp, lineHeight = 13.sp, letterSpacing = 1.2.sp, maxLines = 1)
-        Text(value, color = C.White, fontSize = 22.sp, lineHeight = 26.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, modifier = Modifier.padding(top = 2.dp))
+        Text(value, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, lineHeight = 26.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, modifier = Modifier.padding(top = 2.dp))
         Text(unit, color = C.Text2, fontSize = 11.sp, lineHeight = 14.sp, maxLines = 1)
     }
 }
@@ -260,9 +260,9 @@ fun ProfileScreenRef(go: (Screen) -> Unit) {
                     Box(
                         Modifier.size(80.dp).bloom(5.dp, 0.25f, 40.dp).clip(CircleShape).background(C.Sheet).border(2.dp, C.White, CircleShape),
                         contentAlignment = Alignment.Center,
-                    ) { Text("P", color = C.White, fontSize = 32.sp, fontWeight = FontWeight.Light) }
+                    ) { Text("P", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 32.sp, fontWeight = FontWeight.Light) }
                     Column(Modifier.weight(1f).padding(start = 16.dp)) {
-                        Text("Pranav Heriyur", color = C.White, fontSize = 24.sp, lineHeight = 28.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                        Text("Pranav Heriyur", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 24.sp, lineHeight = 28.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
                         Text(rank.name.uppercase(), color = C.Text2, fontSize = 11.sp, letterSpacing = 3.sp, modifier = Modifier.padding(top = 2.dp))
                         Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.Bottom) {
                             Text("%,d".format(xp), color = C.White, fontSize = 15.sp, fontWeight = FontWeight.Medium)
@@ -279,7 +279,6 @@ fun ProfileScreenRef(go: (Screen) -> Unit) {
         // ---- your stats: every number is labelled ----
         SectionLabel("Your stats")
         val wkDays = remember(tick) { store.workoutDaysInWeek() }
-        val bestMock = remember(tick) { com.pranav.focus.data.StudyDb.get(ctx).mocks().maxOfOrNull { it.score } }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatTile("Day streak", "${store.streak}", "days in a row", Modifier.weight(1f))
@@ -289,7 +288,6 @@ fun ProfileScreenRef(go: (Screen) -> Unit) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatTile("Total XP", "%,d".format(xp), rank.name, Modifier.weight(1f))
                 StatTile("Workout days", "$wkDays", "of the last 7", Modifier.weight(1f))
-                StatTile("Best mock", bestMock?.toString() ?: "—", if (bestMock == null) "no test yet" else "of 720", Modifier.weight(1f))
             }
         }
 
@@ -308,10 +306,6 @@ fun ProfileScreenRef(go: (Screen) -> Unit) {
         // ---- study and plan ----
         SectionLabel("Study and plan")
         GroupCard {
-            ProfSettingRow(R.drawable.plan_ic_notes, "Mock test trend", "Score graph over time, per subject") {
-                store.putStr("study_open", "mock_trend"); go(Screen.Study)
-            }
-            RowDivider()
             ProfSettingRow(R.drawable.ic_menu_book, "Study hub", "Quick log, syllabus and mistakes", onClick = { go(Screen.Study) })
             RowDivider()
             ProfSettingRow(R.drawable.plan_ic_plan, "Plan", "Today's tasks and schedule", onClick = { go(Screen.Plan) })
@@ -340,11 +334,9 @@ fun ProfileScreenRef(go: (Screen) -> Unit) {
         // ---- connections ----
         SectionLabel("Connections")
         GroupCard {
-            ProfSettingRow(R.drawable.ic_directions_run, "Strava", "Sync your runs, rides and workouts", onClick = { go(Screen.Connections) }) { StatusCapsule(hcOn) }
-            RowDivider()
             ProfSettingRow(R.drawable.ic_menu_book, "Notion", "Sync your study sessions and notes", onClick = { go(Screen.Connections) }) { StatusCapsule(notionOn) }
             RowDivider()
-            ProfSettingRow(R.drawable.ic_monitor_heart, "Health Connect", "Access your activity and health data", onClick = { go(Screen.Connections) }) { StatusCapsule(hcOn) }
+            ProfSettingRow(R.drawable.ic_monitor_heart, "Health Connect", "Runs, walks, rides and GPS routes from your watch", onClick = { go(Screen.Connections) }) { StatusCapsule(hcOn) }
         }
 
         // ---- watch ----

@@ -219,19 +219,19 @@ private fun MinutePicker(value: Int, onDelta: (Int) -> Unit) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             listOf(-10, -5).forEach { d ->
                 val v = value + d
-                Text(if (v >= 5) "$v" else " ", color = C.White.copy(alpha = if (d == -10) 0.18f else 0.38f), fontSize = 34.sp, lineHeight = 44.sp, fontWeight = FontWeight.SemiBold)
+                Text(if (v >= 5) "$v" else " ", color = C.White.copy(alpha = if (d == -10) 0.18f else 0.38f), style = com.pranav.focus.ui.HeadGlow, fontSize = 34.sp, lineHeight = 44.sp, fontWeight = FontWeight.SemiBold)
             }
             Row(
                 Modifier.padding(vertical = 4.dp).clip(CircleShape).border(1.dp, C.Hairline, CircleShape).background(C.Raised)
                     .padding(horizontal = 36.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.Bottom,
             ) {
-                Text("$value", color = C.White, fontSize = 72.sp, lineHeight = 80.sp, fontWeight = FontWeight.Bold)
+                Text("$value", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 72.sp, lineHeight = 80.sp, fontWeight = FontWeight.Bold)
                 Text(" min", color = C.Text2, fontSize = 18.sp, modifier = Modifier.padding(bottom = 16.dp))
             }
             listOf(5, 10).forEach { d ->
                 val v = value + d
-                Text(if (v <= 240) "$v" else " ", color = C.White.copy(alpha = if (d == 5) 0.38f else 0.18f), fontSize = 34.sp, lineHeight = 44.sp, fontWeight = FontWeight.SemiBold)
+                Text(if (v <= 240) "$v" else " ", color = C.White.copy(alpha = if (d == 5) 0.38f else 0.18f), style = com.pranav.focus.ui.HeadGlow, fontSize = 34.sp, lineHeight = 44.sp, fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -243,7 +243,7 @@ private fun MinutePicker(value: Int, onDelta: (Int) -> Unit) {
 @Composable
 fun ProfileStat(v: String, l: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(v, color = C.White, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
+        Text(v, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
         Caps(l)
     }
 }

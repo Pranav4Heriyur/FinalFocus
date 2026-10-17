@@ -77,7 +77,7 @@ fun FocusTheme(content: @Composable () -> Unit) {
             outline = C.Hairline,
         ),
     ) {
-        CompositionLocalProvider(LocalTextStyle provides LocalTextStyle.current.copy(fontFamily = Inter)) {
+        CompositionLocalProvider(LocalTextStyle provides LocalTextStyle.current.copy(fontFamily = Inter, shadow = BodyGlow)) {
             content()
         }
     }
@@ -113,12 +113,8 @@ fun FocusCard(
     modifier: Modifier = Modifier, onClick: (() -> Unit)? = null,
     radius: Dp = 24.dp, padding: Dp = 16.dp, content: @Composable ColumnScope.() -> Unit,
 ) {
-    val shape = RoundedCornerShape(radius)
     Column(
-        modifier
-            .clip(shape)
-            .background(C.Card)
-            .border(BorderStroke(1.dp, C.Hairline), shape)
+        modifier.glass(radius)
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
             .padding(padding),
         content = content,
@@ -190,7 +186,7 @@ fun ScreenHeader(title: String, onBack: (() -> Unit)?, subtitle: String? = null)
             ) { Ico(R.drawable.ic_arrow_back, 22.dp) }
             androidx.compose.foundation.layout.Spacer(Modifier.height(12.dp))
         }
-        Text(title, color = C.White, fontSize = 30.sp, lineHeight = 36.sp, fontWeight = FontWeight.SemiBold)
+        Text(title, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 30.sp, lineHeight = 36.sp, fontWeight = FontWeight.SemiBold)
         if (subtitle != null) Text(subtitle, color = C.Text2, fontSize = 14.sp, lineHeight = 20.sp)
     }
 }

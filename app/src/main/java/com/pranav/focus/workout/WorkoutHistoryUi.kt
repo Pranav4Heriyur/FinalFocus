@@ -213,7 +213,7 @@ private fun Hero(d: SessionDetail, big: Boolean, back: () -> Unit) {
                 RoundBtn("Back", R.drawable.ic_arrow_back, back)
                 Spacer(Modifier.height(48.dp))
                 Text(fmt(d.startedAt, "d MMM yyyy • h:mm a").uppercase(), color = C.Text2, fontSize = 12.sp, letterSpacing = 1.sp)
-                Text(d.title, color = C.White, fontSize = 30.sp, lineHeight = 34.sp, fontWeight = FontWeight.Bold, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Text(d.title, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 30.sp, lineHeight = 34.sp, fontWeight = FontWeight.Bold, maxLines = 3, overflow = TextOverflow.Ellipsis)
                 Text(d.subtitle, color = C.Text2, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
@@ -248,7 +248,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.summary(d: SessionDet
             val withVol = d.exercises.filter { it.volumeKg > 0 }
             if (withVol.size < 2) Text(if (d.volumeKg > 0) "${n0(d.volumeKg)} kg total. A breakdown needs at least two weighted exercises." else "No weighted sets in this workout, so there is no volume to show.", color = C.Text2, fontSize = 13.sp, modifier = Modifier.padding(top = 6.dp))
             else {
-                Text("${n0(d.volumeKg)} kg", color = C.White, fontSize = 30.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp))
+                Text("${n0(d.volumeKg)} kg", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 30.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp))
                 HBars(withVol.map { Triple(it.name, it.volumeKg, "${n0(it.volumeKg)} kg") })
             }
         }

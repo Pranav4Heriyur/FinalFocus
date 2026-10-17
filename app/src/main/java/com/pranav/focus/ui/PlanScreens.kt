@@ -124,7 +124,7 @@ private fun Page(onBack: (() -> Unit)?, title: String, sub: String? = null, trai
                 Spacer(Modifier.width(12.dp))
             }
             Column(Modifier.weight(1f)) {
-                Text(title, color = C.White, fontSize = 26.sp, lineHeight = 30.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                Text(title, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 26.sp, lineHeight = 30.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
                 if (sub != null) Text(sub, color = C.Text2, fontSize = 13.sp, maxLines = 1)
             }
             trailing()
@@ -416,7 +416,7 @@ private fun PlanForm(editId: String?, back: () -> Unit) {
         FocusSheet({ conflict = null }) {
             Ico(R.drawable.plan_ic_warning, 32.dp)
             Spacer(Modifier.height(8.dp))
-            Text("Time conflict", color = C.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+            Text("Time conflict", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
             Text("${t.title}: ${fmtT(t.start)}–${fmtT(t.end)} overlaps with ${hit.title}: ${fmtT(hit.start)}–${fmtT(hit.end)}.", color = C.Text2, fontSize = 14.sp, modifier = Modifier.padding(vertical = 8.dp))
             GhostButton("Adjust time") {
                 // moves the new task to start right after the one it collides with (clamped to the day)
@@ -765,7 +765,7 @@ private fun QuickAddSheet(date: LocalDate, onDismiss: () -> Unit) {
     var picking by remember { mutableStateOf(false) }
     val starts = remember { (0..287).map { it * 5 } }
     FocusSheet(onDismiss) {
-        Text("Quick Add", color = C.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+        Text("Quick Add", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(12.dp))
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) { PLAN_CATEGORIES.forEach { c -> PChip(c, c == cat) { cat = c } } }
         Spacer(Modifier.height(10.dp))

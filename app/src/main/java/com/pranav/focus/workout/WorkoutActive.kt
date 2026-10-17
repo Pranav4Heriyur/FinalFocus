@@ -283,7 +283,7 @@ fun WorkoutActiveScreen(go: (Screen) -> Unit, back: () -> Unit) {
                 Column {
                     header()
                     Spacer(Modifier.height(14.dp))
-                    Text(session.title, color = C.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                    Text(session.title, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                     if (data.focus.isNotBlank()) Text(data.focus, color = C.Text2, fontSize = 14.sp, modifier = Modifier.padding(top = 2.dp, end = 90.dp))
                 }
             }
@@ -428,7 +428,7 @@ private fun ElapsedText(session: Session, modifier: Modifier) {
     val startedAt = session.startedAt
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(startedAt) { while (true) { now = System.currentTimeMillis(); delay(500) } }
-    Text(hms(WorkoutTiming.runningMs(startedAt, session.pausedMs, session.timingV, now, ActiveFlow.pausedAt)), color = C.White, fontSize = 40.sp, fontWeight = FontWeight.Bold, modifier = modifier)
+    Text(hms(WorkoutTiming.runningMs(startedAt, session.pausedMs, session.timingV, now, ActiveFlow.pausedAt)), color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 40.sp, fontWeight = FontWeight.Bold, modifier = modifier)
 }
 
 @Composable
@@ -454,7 +454,7 @@ private fun RestTimerDialog(onDismiss: () -> Unit) {
     val frac = if (RestTimer.total <= 0) 0f else (left / (RestTimer.total * 1000f)).coerceIn(0f, 1f)
     WkDialog(onDismiss) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-            Column(Modifier.weight(1f)) { Text("Rest Timer", color = C.White, fontSize = 22.sp, fontWeight = FontWeight.Bold); Text("Between sets", color = C.Text2, fontSize = 13.sp) }
+            Column(Modifier.weight(1f)) { Text("Rest Timer", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, fontWeight = FontWeight.Bold); Text("Between sets", color = C.Text2, fontSize = 13.sp) }
             Box(Modifier.size(44.dp).clickable(role = Role.Button, onClick = onDismiss).semantics { contentDescription = "Close" }, contentAlignment = Alignment.Center) { Ico(wkIco("close"), 20.dp, C.White) }
         }
         Spacer(Modifier.height(12.dp))
@@ -465,7 +465,7 @@ private fun RestTimerDialog(onDismiss: () -> Unit) {
                 drawArc(C.White, -90f, 360f * frac, false, Offset(i, i), Size(size.width - w, size.height - w), style = Stroke(w, cap = StrokeCap.Round))
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(mmss(left), color = C.White, fontSize = 46.sp, fontWeight = FontWeight.Bold)
+                Text(mmss(left), color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 46.sp, fontWeight = FontWeight.Bold)
                 Text(if (RestTimer.finished) "Rest over" else "Remaining", color = C.Text2, fontSize = 13.sp)
             }
         }
@@ -504,7 +504,7 @@ private fun ExerciseInfoSheet(repo: WorkoutRepo, sessionId: String, line: Line, 
     FocusSheet(onDismiss) {
         Column(Modifier.verticalScroll(rememberScrollState())) {
             Row(verticalAlignment = Alignment.Top) {
-                Column(Modifier.weight(1f)) { Text(line.name, color = C.White, fontSize = 22.sp, fontWeight = FontWeight.Bold); Text(listOf(equipment, line.muscleTag).filter { it.isNotBlank() }.joinToString(" • "), color = C.Text2, fontSize = 13.sp) }
+                Column(Modifier.weight(1f)) { Text(line.name, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, fontWeight = FontWeight.Bold); Text(listOf(equipment, line.muscleTag).filter { it.isNotBlank() }.joinToString(" • "), color = C.Text2, fontSize = 13.sp) }
                 Box(Modifier.size(44.dp).clickable(role = Role.Button, onClick = onDismiss).semantics { contentDescription = "Close" }, contentAlignment = Alignment.Center) { Ico(wkIco("close"), 20.dp, C.White) }
             }
             Spacer(Modifier.height(10.dp))
@@ -728,7 +728,7 @@ private fun PrDialog(e: PrEvt, onDismiss: () -> Unit) {
             }
             Box(Modifier.size(84.dp).clip(CircleShape).border(2.dp, C.White.copy(alpha = 0.7f), CircleShape).background(C.Raised), contentAlignment = Alignment.Center) { Ico(wkIco("trophy"), 40.dp, C.White) }
         }
-        Text("New Personal Record!", color = C.White, fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+        Text("New Personal Record!", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
         Text(e.exercise, color = C.Text2, fontSize = 15.sp, modifier = Modifier.padding(top = 4.dp))
         Spacer(Modifier.height(16.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -747,7 +747,7 @@ private fun FinishDialog(body: String, confirm: String, onConfirm: () -> Unit, o
     WkDialog(onCancel) {
         Box(Modifier.size(56.dp).clip(CircleShape).border(2.dp, C.White, CircleShape), contentAlignment = Alignment.Center) { Ico(wkIco("check"), 28.dp, C.White) }
         Spacer(Modifier.height(14.dp))
-        Text("Finish Workout?", color = C.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+        Text("Finish Workout?", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, fontWeight = FontWeight.Bold)
         Text(body, color = C.Text2, fontSize = 14.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp, bottom = 18.dp))
         WkButton(confirm, Modifier.fillMaxWidth(), primary = true, onClick = onConfirm)
         Spacer(Modifier.height(8.dp)); WkButton("Cancel", Modifier.fillMaxWidth(), onClick = onCancel)
@@ -759,7 +759,7 @@ private fun ExitDialog(onSave: () -> Unit, onDiscard: () -> Unit, onCancel: () -
     WkDialog(onCancel) {
         Ico(wkIco("back"), 34.dp, C.White)
         Spacer(Modifier.height(12.dp))
-        Text("Exit Workout?", color = C.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+        Text("Exit Workout?", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, fontWeight = FontWeight.Bold)
         Text("Your progress will be saved and you can continue later.", color = C.Text2, fontSize = 14.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp, bottom = 18.dp))
         WkButton("Save & Exit", Modifier.fillMaxWidth(), primary = true, onClick = onSave)
         Spacer(Modifier.height(8.dp)); WkButton("Discard Workout", Modifier.fillMaxWidth(), onClick = onDiscard)

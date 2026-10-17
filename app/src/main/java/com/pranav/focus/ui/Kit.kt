@@ -30,10 +30,20 @@ import kotlinx.coroutines.delay
 /** Phase-1 shared kit: glass card surface, glow text, staggered reveal, reduce-motion handling. */
 fun Modifier.glass(radius: Dp = 24.dp): Modifier {
     val shape = RoundedCornerShape(radius)
-    return this.clip(shape).background(C.Card)
-        .drawBehind { drawRect(Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.08f), Color.Transparent), endY = 24.dp.toPx())) }
-        .border(1.dp, C.Hairline, shape)
+    return this
+        .clip(shape).background(C.Card)
+        .drawBehind {                                                    // faint glass sheen falling from the top-left
+            drawRect(Brush.linearGradient(listOf(Color.White.copy(alpha = 0.06f), Color.Transparent),
+                start = Offset.Zero, end = Offset(size.width * 0.7f, size.height * 0.8f)))
+        }
+        .border(1.dp, Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.22f), Color.White.copy(alpha = 0.05f))), shape)
 }
+
+/** Soft white diffusion behind every text, the same light the timer numbers carry. */
+val BodyGlow = Shadow(Color.White.copy(alpha = 0.03f), Offset.Zero, 2f)     // body text: barely-there lift
+
+/** Headings and numbers carry the full soft glow. */
+val HeadGlow = androidx.compose.ui.text.TextStyle(shadow = Shadow(Color.White.copy(alpha = 0.18f), Offset.Zero, 16f))
 
 val GlowShadow = Shadow(Color.White.copy(alpha = 0.30f), Offset.Zero, 28f)
 val SoftGlowShadow = Shadow(Color.White.copy(alpha = 0.18f), Offset.Zero, 16f)

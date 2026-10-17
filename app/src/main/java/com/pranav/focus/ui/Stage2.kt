@@ -160,7 +160,7 @@ fun StatsScreen(go: (com.pranav.focus.ui.Screen) -> Unit) {
     val tick = AppState.dataTick
     val focus = remember(range, tick) { val m = store.focusDays(); buckets(range) { (m[it.toString()] ?: 0).toDouble() } }
     val acts = remember(tick) { store.activities }
-    val dist = remember(range, tick) { buckets(range) { d -> acts.filter { it.startDate == d.toString() && (it.isRun || it.isRide) }.sumOf { it.distM } / 1000.0 } }
+    val dist = remember(range, tick) { buckets(range) { d -> acts.filter { it.startDate == d.toString() && (it.isRun || it.isRide || it.isWalk) }.sumOf { it.distM } / 1000.0 } }
     val wk = remember(range, tick) { buckets(range) { d -> acts.count { it.startDate == d.toString() && it.isWorkout } + store.inAppWorkoutsOn(d.toString()).toDouble() } }
     val apps = remember(tick) { if (UsageHelper.hasAccess(ctx)) UsageHelper.today(ctx).take(5) else emptyList() }
     val focusDays = remember(tick) { store.focusDays() }

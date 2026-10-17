@@ -122,7 +122,7 @@ fun WorkoutDayScreen(go: (Screen) -> Unit, back: () -> Unit) {
         // ---- day plan ----
         WkCard {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) { Text("Day $slot Plan", color = C.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold); Text("Assign morning and gym routines for this day.", color = C.Text2, fontSize = 12.sp) }
+                Column(Modifier.weight(1f)) { Text("Day $slot Plan", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, fontWeight = FontWeight.SemiBold); Text("Assign morning and gym routines for this day.", color = C.Text2, fontSize = 12.sp) }
                 WkButton("Copy to…", icon = wkIco("layers"), height = 44.dp) { copySheet = true }
             }
             Spacer(Modifier.height(12.dp))
@@ -168,7 +168,7 @@ fun WorkoutDayScreen(go: (Screen) -> Unit, back: () -> Unit) {
             }
             WkCard(Modifier.weight(1f), padding = 12.dp) {
                 Row(verticalAlignment = Alignment.CenterVertically) { Ico(wkIco("clock"), 18.dp, C.White); Spacer(Modifier.width(8.dp)); Text("Estimated Time", color = C.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold) }
-                Text("~ $minutes min", color = C.White, fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 10.dp))
+                Text("~ $minutes min", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 10.dp))
                 Text("Based on sets, reps and rest times", color = C.Text2, fontSize = 11.sp)
             }
         }

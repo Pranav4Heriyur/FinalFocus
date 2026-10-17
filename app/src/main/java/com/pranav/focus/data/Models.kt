@@ -4,8 +4,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 enum class Cond(val title: String, val sub: String, val unit: String, val source: String) {
-    RUN("Run distance", "Track runs via Strava", "km", "Strava"),
-    RIDE("Ride distance", "Track rides via Strava", "km", "Strava"),
+    RUN("Run distance", "Track runs via Health Connect", "km", "Health Connect"),
+    RIDE("Ride distance", "Track rides via Health Connect", "km", "Health Connect"),
     WORKOUT("Workout done", "Log a completed workout", "workout", "Health"),
     FOCUS("Focus minutes", "Complete a focus session", "min", "Focus"),
     STUDY("Study questions", "Answer questions with accuracy", "questions", "Study"),
@@ -61,6 +61,7 @@ data class Activity(
 ) {
     val isRun get() = type == "Run" || type == "TrailRun" || type == "VirtualRun"
     val isRide get() = type == "Ride" || type == "VirtualRide" || type == "EBikeRide" || type == "GravelRide" || type == "MountainBikeRide"
+    val isWalk get() = type == "Walk" || type == "Hike"
     val isWorkout get() = type in setOf("Workout", "WeightTraining", "Crossfit", "HighIntensityIntervalTraining", "Yoga", "Pilates")
 }
 

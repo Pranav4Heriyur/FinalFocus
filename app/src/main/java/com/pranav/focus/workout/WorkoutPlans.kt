@@ -78,7 +78,7 @@ fun WorkoutPlansScreen(go: (Screen) -> Unit, back: () -> Unit) {
                     CoverArt(gym.firstOrNull(), Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).border(1.dp, C.Hairline, RoundedCornerShape(22.dp))) {
                         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) { Ico(wkIco("medal"), 16.dp, C.White); Spacer(Modifier.width(8.dp)); Text("ACTIVE PROGRAM", color = C.Text2, fontSize = 11.sp, letterSpacing = 1.2.sp) }
-                            Text(active.name, color = C.White, fontSize = 24.sp, lineHeight = 28.sp, fontWeight = FontWeight.Bold)
+                            Text(active.name, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 24.sp, lineHeight = 28.sp, fontWeight = FontWeight.Bold)
                             val pr = remember(tick, active.id) { repo.planRoutines(active.id) }
                             Text("${pr.count { it.isGym }}-routine split • ${pr.count { !it.isGym }} morning routines • 7-day schedule", color = C.Text2, fontSize = 13.sp)
                             Spacer(Modifier.height(60.dp))
@@ -102,7 +102,7 @@ fun WorkoutPlansScreen(go: (Screen) -> Unit, back: () -> Unit) {
                 }
                 if (active != null) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) { Text("Weekly Schedule", color = C.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold); Text("7-day structure (editable)", color = C.Text2, fontSize = 13.sp) }
+                        Column(Modifier.weight(1f)) { Text("Weekly Schedule", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, fontWeight = FontWeight.SemiBold); Text("7-day structure (editable)", color = C.Text2, fontSize = 13.sp) }
                         WkButton("Edit Schedule", icon = wkIco("calendar"), height = 48.dp) { WorkoutNav.planId = active.id; WorkoutNav.slot = WorkoutLogic.slotFor(com.pranav.focus.data.AppClock.today(), active.slot1Weekday); go(Screen.WorkoutDay) }
                     }
                     ScheduleStrip(active, days, byId, WorkoutLogic.slotFor(com.pranav.focus.data.AppClock.today(), active.slot1Weekday)) { slot -> WorkoutNav.planId = active.id; WorkoutNav.slot = slot; go(Screen.WorkoutDay) }
@@ -283,7 +283,7 @@ fun WorkoutRoutineScreen(go: (Screen) -> Unit, back: () -> Unit) {
         }
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) { Tag(r.code); Spacer(Modifier.width(8.dp)); Text(if (r.isGym) "GYM ROUTINE" else "MORNING ROUTINE", color = C.Text2, fontSize = 12.sp, letterSpacing = 1.sp) }
-            Text(r.name, color = C.White, fontSize = 34.sp, lineHeight = 38.sp, fontWeight = FontWeight.Bold)
+            Text(r.name, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 34.sp, lineHeight = 38.sp, fontWeight = FontWeight.Bold)
             Text(r.focus, color = C.Text2, fontSize = 16.sp)
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

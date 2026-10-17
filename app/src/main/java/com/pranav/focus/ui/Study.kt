@@ -76,8 +76,12 @@ sealed class SR {
     object MockTrend : SR()
     data class MockRes(val id: Long) : SR()
     data class Notebook(val subject: Subject? = null) : SR()
-    object Stats : SR()
     object Syllabus : SR()
+}
+
+/** Which Study view is showing: 0 Practice (hub), 1 Stats. Study is its own tab. */
+object StudyNav {
+    var tab by mutableIntStateOf(0)
 }
 
 /** Snapshot of everything the Study screens read. Always derived from the persisted tables. */
@@ -119,7 +123,11 @@ fun StudyRoot(go: (Screen) -> Unit) {
     val bump: () -> Unit = { ver++; AppState.dataTick++ }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp).padding(top = 8.dp, bottom = 24.dp)) {
         when (val r = stack.last()) {
-            SR.Hub -> StudyHub(data, ::push)
+            SR.Hub -> {
+                SegFull(listOf("Practice", "Stats"), StudyNav.tab) { StudyNav.tab = it }
+                Spacer(Modifier.height(12.dp))
+                if (StudyNav.tab == 1) StudyStatsBody(data) else StudyHub(data, ::push)
+            }
             is SR.Log -> QuickLog(data, r, ::pop, bump)
             is SR.Sub -> SubjectDetail(data, r.subject, ::pop, ::push)
             is SR.Chap -> ChapterDetail(data, r.id, ::pop, ::push, bump)
@@ -127,7 +135,6 @@ fun StudyRoot(go: (Screen) -> Unit) {
             SR.MockTrend -> MockTrendScreen(data, ::pop, ::push)
             is SR.MockRes -> MockResult(data, r.id, ::pop, ::push)
             is SR.Notebook -> Notebook(data, r.subject, ::pop, bump)
-            SR.Stats -> StatsScreen2(data, ::pop)
             SR.Syllabus -> Syllabus(data, ::pop, ::push, bump)
         }
     }
@@ -146,9 +153,9 @@ private fun StudyHub(d: SData, push: (SR) -> Unit) {
     var examErr by remember { mutableStateOf(false) }
     val days = exam?.let { StudyLogic.daysTo(it, AppClock.today()) }
     Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text("Study", color = C.White, fontSize = 30.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+        Text("Study", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 30.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
         if (days == null) Pill("Set exam date", onClick = { examText = ""; examErr = false; editExam = true })
-        else Pill(if (days < 0) "NEET date passed  ›" else "NEET: $days days  ›", onClick = { push(SR.Stats) })
+        else Pill(if (days < 0) "NEET date passed  ›" else "NEET: $days days  ›", onClick = { StudyNav.tab = 1 })
     }
     if (editExam) androidx.compose.material3.AlertDialog(
         onDismissRequest = { editExam = false },
@@ -232,7 +239,7 @@ private fun StudyHub(d: SData, push: (SR) -> Unit) {
                     IconTile(R.drawable.plan_ic_notes, size = 44.dp)
                     Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
                         Text("Last mock", color = C.Text2, fontSize = 11.sp)
-                        Text(if (last != null) "${last.score} / 720" else "No mock yet", color = C.White, fontSize = 22.sp, fontWeight = FontWeight.Medium)
+                        Text(if (last != null) "${last.score} / 720" else "No mock yet", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, fontWeight = FontWeight.Medium)
                     }
                     if (last != null && prev != null) DeltaChip(last.score - prev.score)
                     Ico(R.drawable.p1_chevron_right, 18.dp, C.Text2, Modifier.padding(start = 8.dp))
@@ -396,7 +403,7 @@ private fun SubjectDetail(d: SData, s: Subject, back: () -> Unit, push: (SR) -> 
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconTile(subjectIcon(s), size = 56.dp)
         Column(Modifier.padding(start = 14.dp)) {
-            Text(s.label, color = C.White, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+            Text(s.label, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 26.sp, fontWeight = FontWeight.Bold)
             Text(subjectBlurb(s), color = C.Text2, fontSize = 12.sp)
         }
     }
@@ -487,7 +494,7 @@ private fun ChapterDetail(d: SData, id: Int, back: () -> Unit, push: (SR) -> Uni
         val counts = MistakeType.values().map { m -> mistakes.count { it.type == m } }
         val total = counts.sum()
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Donut(counts, Modifier.size(120.dp)) { Text("$total", color = C.White, fontSize = 24.sp, fontWeight = FontWeight.Medium); Text("mistakes", color = C.Text2, fontSize = 10.sp) }
+            Donut(counts, Modifier.size(120.dp)) { Text("$total", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 24.sp, fontWeight = FontWeight.Medium); Text("mistakes", color = C.Text2, fontSize = 10.sp) }
             Column(Modifier.weight(1f).padding(start = 18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 MistakeType.values().forEachIndexed { i, m ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -760,44 +767,117 @@ private fun Notebook(d: SData, initial: Subject?, back: () -> Unit, bump: () -> 
 // ---------------------------------------------------------------------------------------
 // B6 Stats
 // ---------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------
+// Study stats (Study tab, Stats segment). Every chart is a line, read from the same logs.
+// ---------------------------------------------------------------------------------------
 @Composable
-private fun StatsScreen2(d: SData, back: () -> Unit) {
+private fun StudyStatsBody(d: SData) {
     var p by remember { mutableIntStateOf(0) }
     val today = AppClock.today()
     val n = when (p) { 0 -> 7; 1 -> 30; else -> 84 }
     val step = if (p == 2) 7 else 1
-    val buckets = (n / step - 1 downTo 0).map { k -> today.minusDays((k * step).toLong()) }
+    val buckets = remember(p) { (n / step - 1 downTo 0).map { k -> today.minusDays((k * step).toLong()) } }
     fun inB(day: LocalDate, b: LocalDate) = !day.isAfter(b) && day.isAfter(b.minusDays(step.toLong()))
-    val perSub = Subject.values().map { s -> buckets.map { b -> d.logs.filter { it.subject == s && inB(d.day(it), b) }.sumOf { it.attempted + it.skipped } } }
-    val maxQ = (perSub.flatten().maxOrNull() ?: 0).coerceAtLeast(1)
-    StudyTopBar("Study Stats", "Track progress. Find patterns.", back)
-    SegPill(listOf("Week", "Month", "All"), p) { p = it }
+    val rangeStart = today.minusDays((n - 1).toLong())
+    val inRange = remember(d, p) { d.logs.filter { val x = d.day(it); !x.isBefore(rangeStart) && !x.isAfter(today) } }
+    val rangeT = inRange.tally()
+    val rangeQ = rangeT.attempted + rangeT.skipped
+    fun qCount(logs: List<QLog>): Float = logs.sumOf { it.attempted + it.skipped }.toFloat()
+    fun scale(v: List<Float>): List<Float?> { val m = (v.maxOrNull() ?: 0f).coerceAtLeast(1f); return v.map { it / m } }
+
+    val totals = remember(d, p) { buckets.map { b -> qCount(d.logs.filter { inB(d.day(it), b) }) } }
+    val perSub = remember(d, p) { Subject.values().map { s -> buckets.map { b -> qCount(d.logs.filter { it.subject == s && inB(d.day(it), b) }) } } }
+    val accLines: List<List<Float?>> = remember(d, p) { Subject.values().map { s ->
+        buckets.map { b -> val t = d.logs.filter { it.subject == s && inB(d.day(it), b) }.tally(); if (t.attempted == 0) null else t.accPct / 100f }
+    } }
+
+    Text("Study stats", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 30.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
+    SegPill(listOf("Week", "Month", "3 months"), p) { p = it }
+    Spacer(Modifier.height(12.dp))
+    SectionCard(pad = 14.dp) {
+        Row(Modifier.fillMaxWidth()) {
+            StatCell("$rangeQ", "Questions", Modifier.weight(1f))
+            StatCell(if (rangeT.attempted == 0) "—" else "${rangeT.accPct}%", "Accuracy", Modifier.weight(1f))
+            StatCell((if (rangeT.marks >= 0) "+" else "") + rangeT.marks, "Net marks", Modifier.weight(1f))
+        }
+    }
+
+    // 1. Total questions attempted per day
     Spacer(Modifier.height(12.dp))
     SectionCard {
-        Text("Questions per day", color = C.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        Text("Total questions per day", color = C.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        Text(if (p == 2) "Weekly totals" else "Daily totals", color = C.Text2, fontSize = 12.sp)
         Spacer(Modifier.height(10.dp))
-        val shades = listOf(1f, 0.6f, 0.3f)
-        Canvas(Modifier.fillMaxWidth().height(130.dp)) {
-            val groupW = size.width / buckets.size
-            val barW = (groupW * 0.8f) / 3
-            buckets.indices.forEach { bi ->
-                (0..2).forEach { si ->
-                    val h = size.height * perSub[si][bi] / maxQ
-                    drawRoundRect(Color.White.copy(alpha = shades[si]), Offset(bi * groupW + groupW * 0.1f + si * barW, size.height - h), Size(barW * 0.9f, h), androidx.compose.ui.geometry.CornerRadius(1.5.dp.toPx()))
+        LineChart(listOf(scale(totals)), Modifier.fillMaxWidth().height(140.dp))
+        RangeLabels(buckets)
+    }
+
+    // 2. Questions per subject, one card and line graph each
+    Spacer(Modifier.height(12.dp))
+    Subject.values().forEachIndexed { i, s ->
+        val q = perSub[i]
+        SectionCard(pad = 14.dp, radius = 20.dp) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconTile(subjectIcon(s), size = 40.dp)
+                Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
+                    Text(s.label, color = C.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text("${q.sum().toInt()} questions in this range", color = C.Text2, fontSize = 12.sp)
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+            LineChart(listOf(scale(q)), Modifier.fillMaxWidth().height(90.dp))
+            RangeLabels(buckets)
+        }
+        Spacer(Modifier.height(10.dp))
+    }
+
+    // 3. Accuracy per subject
+    SectionCard {
+        Text("Accuracy per subject", color = C.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(10.dp))
+        LineChart(accLines, Modifier.fillMaxWidth().height(120.dp), dashed = true)
+        RangeLabels(buckets)
+        Row(Modifier.fillMaxWidth().padding(top = 10.dp)) {
+            Subject.values().forEachIndexed { i, s ->
+                val t = inRange.filter { it.subject == s }.tally()
+                Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                    LineKey(i)
+                    Text(s.label, color = C.Text2, fontSize = 11.sp, modifier = Modifier.padding(top = 4.dp))
+                    Text(if (t.attempted == 0) "—" else "${t.accPct}%", color = C.White, fontSize = 20.sp, fontWeight = FontWeight.Medium)
                 }
             }
         }
-        Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Subject.values().forEachIndexed { i, s -> Row(verticalAlignment = Alignment.CenterVertically) { Box(Modifier.size(8.dp).clip(CircleShape).background(Color.White.copy(alpha = shades[i]))); Text(" ${s.label}", color = C.Text2, fontSize = 10.sp) } }
-        }
     }
+
+    // 4. Mock test marks trend
     Spacer(Modifier.height(12.dp))
     SectionCard {
-        Text("Accuracy trend", color = C.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-        Spacer(Modifier.height(8.dp))
-        val lines = Subject.values().map { s -> buckets.map { b -> val t = d.logs.filter { it.subject == s && inB(d.day(it), b) }.tally(); if (t.attempted == 0) null else t.accPct / 100f } }
-        LineChart(lines, Modifier.fillMaxWidth().height(110.dp), dashed = true)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Mock marks trend", color = C.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            if (d.mocks.isNotEmpty()) Text("${d.mocks.first().score} / 720", color = C.White, fontSize = 15.sp)
+        }
+        if (d.mocks.size < 2) {
+            Text(
+                if (d.mocks.isEmpty()) "No mock tests yet. Log one to start the graph." else "Take a second test to see a trend.",
+                color = C.Text2, fontSize = 13.sp, modifier = Modifier.padding(top = 8.dp),
+            )
+        } else {
+            val seq = d.mocks.asReversed()
+            val target = d.db.targetScore
+            Spacer(Modifier.height(10.dp))
+            LineChart(
+                listOf(seq.map { (it.score / 720f).coerceIn(0f, 1f) }, seq.map { (target / 720f).coerceIn(0f, 1f) }),
+                Modifier.fillMaxWidth().height(140.dp), dashed = true,
+            )
+            Row(Modifier.fillMaxWidth().padding(top = 6.dp)) {
+                Text(seq.first().date, color = C.Text2, fontSize = 11.sp, modifier = Modifier.weight(1f))
+                Text(seq.last().date, color = C.Text2, fontSize = 11.sp)
+            }
+            Text("Solid line: your score. Dashed line: target $target.", color = C.Text3, fontSize = 11.sp, modifier = Modifier.padding(top = 8.dp))
+        }
     }
+
+    // Subject comparison (unchanged from the old Study stats)
     Spacer(Modifier.height(12.dp))
     SectionCard(pad = 12.dp) {
         Text("Subject comparison", color = C.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -818,6 +898,8 @@ private fun StatsScreen2(d: SData, back: () -> Unit) {
             }
         }
     }
+
+    // Study calendar (unchanged from the old Study stats)
     Spacer(Modifier.height(12.dp))
     SectionCard {
         Text("Study calendar", color = C.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -842,6 +924,25 @@ private fun StatsScreen2(d: SData, back: () -> Unit) {
             StatCell(if (all.attempted == 0) "—" else "${all.accPct}%", "Avg accuracy", Modifier.weight(1f))
             StatCell((if (all.marks >= 0) "+" else "") + all.marks, "Net marks", Modifier.weight(1f))
         }
+    }
+}
+
+/** Date labels under a chart: first and last bucket. */
+@Composable
+private fun RangeLabels(buckets: List<LocalDate>) {
+    val f = DateTimeFormatter.ofPattern("d MMM", java.util.Locale.ENGLISH)
+    Row(Modifier.fillMaxWidth().padding(top = 6.dp)) {
+        Text(buckets.first().format(f), color = C.Text2, fontSize = 11.sp, modifier = Modifier.weight(1f))
+        Text(buckets.last().format(f), color = C.Text2, fontSize = 11.sp)
+    }
+}
+
+/** Short line sample matching LineChart's style for series i: solid, dashed, dotted. */
+@Composable
+private fun LineKey(i: Int) {
+    Canvas(Modifier.width(22.dp).height(6.dp)) {
+        val eff = when (i) { 1 -> PathEffect.dashPathEffect(floatArrayOf(8f, 6f)); 2 -> PathEffect.dashPathEffect(floatArrayOf(2f, 5f)); else -> null }
+        drawLine(Color.White, Offset(0f, size.height / 2), Offset(size.width, size.height / 2), strokeWidth = 2.dp.toPx(), cap = StrokeCap.Round, pathEffect = eff)
     }
 }
 

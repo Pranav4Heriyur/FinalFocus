@@ -74,7 +74,7 @@ fun HomeScreen(go: (Screen) -> Unit) {
     var avatarVer by remember { mutableIntStateOf(0) }
     var doneIds by remember(tick) { mutableStateOf(store.reviewDone()) }
 
-    val act = remember(mode, tick) { store.activities.firstOrNull { if (mode == 0) it.isRun else it.isRide } }
+    val act = remember(mode, tick) { store.activities.firstOrNull { when (mode) { 0 -> it.isRun; 1 -> it.isWalk; else -> it.isRide } } }
     val connected = remember(tick) { HealthSync.connected(ctx) }
     val usage = remember(tick) { if (UsageHelper.hasAccess(ctx)) UsageHelper.today(ctx) else emptyList() }
     val usageOn = remember(tick) { UsageHelper.hasAccess(ctx) }
@@ -104,6 +104,7 @@ fun HomeScreen(go: (Screen) -> Unit) {
                 ).map { it.coerceIn(0f, 1f) }
             )
         }
+        Reveal(3) { SleepCard(remember(tick) { HealthSync.nights(ctx) }, connected) { go(Screen.Connections) } }
         Reveal(3) { ScreenTimeCard(usage, screenMs, budgetMin, usageOn) { go(Screen.Setup) } }
         Reveal(4) {
             // The agenda IS today's Daily Planner (single source of truth).
@@ -152,7 +153,7 @@ private fun Header(greeting: String, watchMe: Boolean, ver: Int, onPhoto: () -> 
         )
         Column(Modifier.weight(1f).padding(start = 12.dp)) {
             Text(greeting, color = Color(0xFFDDDDDD), fontSize = 14.sp, lineHeight = 17.sp)
-            Text("Pranav", color = C.White, fontSize = 26.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold)
+            Text("Pranav", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 26.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold)
             Text(AppClock.today().format(DateTimeFormatter.ofPattern("EEE, d MMM yyyy")), color = C.Text2, fontSize = 12.sp, lineHeight = 15.sp)
         }
         Row(
@@ -173,10 +174,10 @@ private fun HeroCard(store: Store, act: com.pranav.focus.data.Activity?, mode: I
             MapRoute(act, connected, Modifier.fillMaxSize().clickable(enabled = !connected) { onConnect() })
             Row(Modifier.fillMaxWidth().padding(start = 12.dp, end = 14.dp, top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(39.dp).clip(RoundedCornerShape(13.dp)).background(C.Sheet).border(1.dp, C.Hairline, RoundedCornerShape(13.dp)), contentAlignment = Alignment.Center) {
-                    Ico(if (mode == 0) R.drawable.p1_run_sprinter else R.drawable.p1_ride_bicycle, 22.dp)
+                    Ico(when (mode) { 0 -> R.drawable.p1_run_sprinter; 1 -> R.drawable.wk_ui_ruck; else -> R.drawable.p1_ride_bicycle }, 22.dp)
                 }
                 Column(Modifier.weight(1f).padding(start = 10.dp)) {
-                    Text(act?.name?.ifBlank { null } ?: if (mode == 0) "Latest run" else "Latest ride", color = C.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    Text(act?.name?.ifBlank { null } ?: when (mode) { 0 -> "Latest run"; 1 -> "Latest walk"; else -> "Latest ride" }, color = C.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
                     Text(
                         when { act != null -> relDay(act.startDate); connected -> "No recent activity"; else -> "Health Connect not connected" },
                         color = C.Text2, fontSize = 12.sp, maxLines = 1,
@@ -218,8 +219,8 @@ private fun relDay(date: String): String {
 
 @Composable
 private fun RunRide(mode: Int, onMode: (Int) -> Unit) {
-    Row(Modifier.width(118.dp).height(34.dp).clip(CircleShape).background(C.Raised).border(1.dp, C.Hairline, CircleShape).padding(3.dp)) {
-        listOf("Run", "Ride").forEachIndexed { i, o ->
+    Row(Modifier.width(168.dp).height(34.dp).clip(CircleShape).background(C.Raised).border(1.dp, C.Hairline, CircleShape).padding(3.dp)) {
+        listOf("Run", "Walk", "Ride").forEachIndexed { i, o ->
             Box(
                 Modifier.weight(1f).fillMaxHeight().clip(CircleShape).background(if (i == mode) C.White else Color.Transparent).clickable { onMode(i) },
                 contentAlignment = Alignment.Center,
@@ -445,7 +446,7 @@ private fun TimeBankCard(balance: Int, earned: Int, spent: Int, onUnlock: () -> 
         }
         Row(verticalAlignment = Alignment.Bottom) {
             Text("$balance", style = glow(76f, 300).copy(lineHeight = 80.sp, letterSpacing = (-2).sp))
-            Text("min", color = C.White, fontSize = 22.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(start = 8.dp, bottom = 14.dp))
+            Text("min", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 22.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(start = 8.dp, bottom = 14.dp))
         }
         Caps("Available now", color = C.Text2)
         Spacer(Modifier.height(8.dp))

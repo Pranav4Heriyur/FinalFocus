@@ -61,8 +61,9 @@ import com.pranav.focus.net.NetState
 import com.pranav.focus.net.Notion
 import com.pranav.focus.net.Secure
 import com.pranav.focus.net.HealthSync
-import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.contracts.ExerciseRouteRequestContract
+import androidx.health.connect.client.PermissionController
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -98,7 +99,7 @@ fun ConnectionsScreen(back: () -> Unit) {
                 IconTile(R.drawable.ic_monitor_heart, active = connected)
                 Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
                     Text("Health Connect", color = C.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
-                    Text(if (connected) "Connected · runs, rides, workouts" else "Reads runs and routes saved by Strava", color = C.Text2, fontSize = 13.sp)
+                    Text(if (connected) "Connected · runs, rides, workouts" else "Reads runs, walks and routes from your watch", color = C.Text2, fontSize = 13.sp)
                 }
             }
             Spacer(Modifier.height(12.dp))
@@ -109,7 +110,7 @@ fun ConnectionsScreen(back: () -> Unit) {
                     ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.apps.healthdata")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                 }
             } else if (!connected) {
-                Text("In Strava turn on Health Connect sync (Settings → Health Connect). Then allow Focus to read exercise, route, distance and heart rate. Data never leaves your phone.", color = C.Text2, fontSize = 13.sp, lineHeight = 18.sp)
+                Text("In Samsung Health (or your watch app) turn on Health Connect sync, so runs and GPS routes are written to Health Connect. Then allow Focus to read exercise, route, distance and heart rate. Data never leaves your phone.", color = C.Text2, fontSize = 13.sp, lineHeight = 18.sp)
                 Spacer(Modifier.height(10.dp))
                 PrimaryButton("Allow access") { permLauncher.launch(HealthSync.PERMISSIONS) }
             } else {
@@ -223,7 +224,7 @@ fun LockScreen(onUnlock: () -> Unit) {
     Column(Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Ico(R.drawable.ic_lock, 48.dp)
         Spacer(Modifier.height(16.dp))
-        Text("Focus is locked", color = C.White, fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+        Text("Focus is locked", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(24.dp))
         PrimaryButton("Unlock") { onUnlock() }
     }

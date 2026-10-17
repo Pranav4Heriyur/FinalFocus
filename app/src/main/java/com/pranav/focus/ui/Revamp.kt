@@ -129,7 +129,7 @@ fun MirrorScreen(back: () -> Unit) {
                 Column {
                     Eyebrow("Nightly review")
                     Spacer(Modifier.height(8.dp))
-                    Text("Face the day.", color = C.White, fontSize = 32.sp, fontWeight = FontWeight.Bold, lineHeight = 36.sp)
+                    Text("Face the day.", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 32.sp, fontWeight = FontWeight.Bold, lineHeight = 36.sp)
                     Spacer(Modifier.height(8.dp))
                     Text("Be honest. This is for a better you tomorrow.", color = C.Text2, fontSize = 14.sp, modifier = Modifier.width(250.dp))
                 }
@@ -237,7 +237,7 @@ fun JarScreen(back: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Eyebrow("Cookie jar")
                 Spacer(Modifier.height(8.dp))
-                Text("The hardest things you’ve done.", color = C.White, fontSize = 28.sp, fontWeight = FontWeight.Bold, lineHeight = 32.sp)
+                Text("The hardest things you’ve done.", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 28.sp, fontWeight = FontWeight.Bold, lineHeight = 32.sp)
                 Spacer(Modifier.height(8.dp))
                 Text("Remember this when you want to quit.", color = C.Text2, fontSize = 13.sp)
             }
@@ -431,7 +431,7 @@ fun SecurityScreen(back: () -> Unit) {
             Spacer(Modifier.height(22.dp))
             Eyebrow("Security")
             Spacer(Modifier.height(8.dp))
-            Text("Your data.\nYour discipline.", color = C.White, fontSize = 28.sp, fontWeight = FontWeight.Bold, lineHeight = 32.sp)
+            Text("Your data.\nYour discipline.", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 28.sp, fontWeight = FontWeight.Bold, lineHeight = 32.sp)
             Spacer(Modifier.height(8.dp))
             Text("Built to keep you focused, private and in control.", color = C.Text2, fontSize = 13.sp, modifier = Modifier.width(210.dp))
             Spacer(Modifier.height(40.dp))

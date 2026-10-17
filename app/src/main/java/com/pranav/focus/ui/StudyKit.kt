@@ -166,7 +166,7 @@ private fun StepBtn(plus: Boolean, style: Int, onClick: () -> Unit) {
 fun StatCell(v: String, l: String, modifier: Modifier = Modifier, sub: String? = null) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(l, color = C.Text2, fontSize = 11.sp)
-        Text(v, color = C.White, fontSize = 24.sp, fontWeight = FontWeight.Medium)
+        Text(v, color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 24.sp, fontWeight = FontWeight.Medium)
         if (sub != null) Text(sub, color = C.Text3, fontSize = 10.sp)
     }
 }

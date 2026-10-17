@@ -35,6 +35,7 @@ val NAV_ITEMS = listOf(
     NavItem(Screen.Home, "Home", R.drawable.ic_home, R.drawable.p1_home_filled),
     NavItem(Screen.Focus, "Focus", R.drawable.p1_focus_ring),
     NavItem(Screen.Plan, "Plan", R.drawable.plan_ic_plan),
+    NavItem(Screen.Study, "Study", R.drawable.p1_study_book),
     NavItem(Screen.Workout, "Workout", R.drawable.p1_dumbbell),
     NavItem(Screen.Stats, "Stats", R.drawable.p1_stats_bars),
     NavItem(Screen.TimeBank, "Time Bank", R.drawable.p1_clock),

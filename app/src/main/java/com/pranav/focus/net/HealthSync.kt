@@ -21,11 +21,19 @@ import com.pranav.focus.lock.AppState
 import com.pranav.focus.lock.Earning
 import kotlinx.coroutines.runBlocking
 import java.time.Duration
+import org.json.JSONArray
+import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
 
+/** One night of sleep, minutes per stage. */
+data class Night(
+    val startMs: Long, val endMs: Long, val deepMin: Int, val lightMin: Int, val remMin: Int,
+    val awakeMin: Int, val wakings: Int, val asleepMin: Int,
+)
+
 /**
- * Reads runs, rides and workouts from Android Health Connect (Strava and other apps write there).
+ * Reads runs, rides and workouts from Android Health Connect (your watch app and other fitness apps write there).
  * No web APIs, no keys: everything stays on the phone.
  */
 object HealthSync {
@@ -56,6 +64,7 @@ object HealthSync {
     private fun typeOf(t: Int): String = when (t) {
         ExerciseSessionRecord.EXERCISE_TYPE_RUNNING, ExerciseSessionRecord.EXERCISE_TYPE_RUNNING_TREADMILL -> "Run"
         ExerciseSessionRecord.EXERCISE_TYPE_BIKING, ExerciseSessionRecord.EXERCISE_TYPE_BIKING_STATIONARY -> "Ride"
+        ExerciseSessionRecord.EXERCISE_TYPE_WALKING -> "Walk"
         ExerciseSessionRecord.EXERCISE_TYPE_WEIGHTLIFTING, ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING,
         ExerciseSessionRecord.EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING, ExerciseSessionRecord.EXERCISE_TYPE_CALISTHENICS,
         ExerciseSessionRecord.EXERCISE_TYPE_YOGA -> "Workout"
@@ -100,7 +109,7 @@ object HealthSync {
                 srcs.getOrPut(r.metadata.id.hashCode().toLong()) { sortedSetOf() }.add(srcName(r.metadata.dataOrigin.packageName))
                 out.add(Activity(
                     r.metadata.id.hashCode().toLong(), type,
-                    r.title?.takeIf { it.isNotBlank() } ?: when (type) { "Run" -> "Run"; "Ride" -> "Ride"; else -> "Workout" },
+                    r.title?.takeIf { it.isNotBlank() } ?: when (type) { "Run" -> "Run"; "Ride" -> "Ride"; "Walk" -> "Walk"; else -> "Workout" },
                     r.startTime.toEpochMilli(), r.startTime.atZone(zone).toLocalDate().toString(),
                     dist, Duration.between(r.startTime, r.endTime).seconds.toInt(), hr, elev, poly,
                 ))
@@ -109,6 +118,31 @@ object HealthSync {
             runCatching {
                 val m = runBlocking { client.aggregate(AggregateRequest(setOf(SleepSessionRecord.SLEEP_DURATION_TOTAL), TimeRangeFilter.between(end.minus(Duration.ofHours(30)), end))) }[SleepSessionRecord.SLEEP_DURATION_TOTAL]?.toMinutes() ?: 0L
                 Store.get(ctx).putInt("sleep_min", m.toInt())
+            }
+            // Sleep sessions with their stages (last 8 nights), for the Sleep card.
+            runCatching {
+                val sessions = runBlocking {
+                    client.readRecords(ReadRecordsRequest(SleepSessionRecord::class, TimeRangeFilter.between(end.minus(Duration.ofDays(8)), end))).records
+                }
+                val arr = JSONArray()
+                for (r in sessions.sortedBy { it.endTime }) {
+                    var deep = 0L; var light = 0L; var rem = 0L; var awake = 0L; var sleeping = 0L; var wakings = 0
+                    for (st in r.stages) {
+                        val m = Duration.between(st.startTime, st.endTime).toMinutes()
+                        when (st.stage) {
+                            SleepSessionRecord.STAGE_TYPE_DEEP -> deep += m
+                            SleepSessionRecord.STAGE_TYPE_LIGHT -> light += m
+                            SleepSessionRecord.STAGE_TYPE_REM -> rem += m
+                            SleepSessionRecord.STAGE_TYPE_SLEEPING -> sleeping += m
+                            SleepSessionRecord.STAGE_TYPE_AWAKE -> { awake += m; wakings++ }
+                        }
+                    }
+                    val asleep = if (r.stages.isEmpty()) Duration.between(r.startTime, r.endTime).toMinutes() else deep + light + rem + sleeping
+                    arr.put(JSONObject().put("s", r.startTime.toEpochMilli()).put("e", r.endTime.toEpochMilli())
+                        .put("deep", deep).put("light", light).put("rem", rem).put("awake", awake)
+                        .put("wakings", wakings).put("asleep", asleep))
+                }
+                Store.get(ctx).putStr("sleep_list", arr.toString())
             }
             // Club the watch (Samsung Health) and Strava: the same workout appears twice in Health Connect.
             val st = Store.get(ctx)
@@ -139,7 +173,6 @@ object HealthSync {
 
     private fun srcName(pkg: String) = when {
         "shealth" in pkg || "samsung" in pkg -> "Samsung Health"
-        "strava" in pkg -> "Strava"
         else -> pkg.substringAfterLast('.')
     }
 
@@ -149,6 +182,16 @@ object HealthSync {
         val shorter = minOf(aE - a.startMs, bE - b.startMs).coerceAtLeast(1)
         return inter > shorter / 2
     }
+
+    /** Stored sleep nights, oldest first. */
+    fun nights(ctx: Context): List<Night> = runCatching {
+        val arr = JSONArray(Store.get(ctx).str("sleep_list", "[]"))
+        (0 until arr.length()).map { i ->
+            val o = arr.getJSONObject(i)
+            Night(o.getLong("s"), o.getLong("e"), o.getInt("deep"), o.getInt("light"), o.getInt("rem"),
+                o.getInt("awake"), o.getInt("wakings"), o.getInt("asleep"))
+        }
+    }.getOrDefault(emptyList())
 
     fun syncAsync(ctx: Context) { Thread { sync(ctx) }.start() }
 

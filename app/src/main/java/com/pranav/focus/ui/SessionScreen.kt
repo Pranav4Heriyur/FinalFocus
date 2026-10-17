@@ -130,7 +130,7 @@ fun SessionScreen() {
                     drawArc(C.White, -90f, 360f * progress, false, topLeft, arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(formatClock(remaining), color = C.White, fontSize = 64.sp, lineHeight = 72.sp, fontWeight = FontWeight.SemiBold)
+                    Text(formatClock(remaining), color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 64.sp, lineHeight = 72.sp, fontWeight = FontWeight.SemiBold)
                     Text("/ ${formatClock(totalMs)}", color = C.Text3, fontSize = 18.sp)
                 }
             }
@@ -217,7 +217,7 @@ private fun ExitSheet(percent: Int, onDismiss: () -> Unit) {
         ) {
             Box(Modifier.width(36.dp).height(4.dp).clip(CircleShape).background(C.Text3))
             Spacer(Modifier.height(20.dp))
-            Text("You’re at $percent%.", color = C.White, fontSize = 30.sp, lineHeight = 36.sp, fontWeight = FontWeight.SemiBold)
+            Text("You’re at $percent%.", color = C.White, style = com.pranav.focus.ui.HeadGlow, fontSize = 30.sp, lineHeight = 36.sp, fontWeight = FontWeight.SemiBold)
             Text("You can do more than you think.", color = C.Text2, fontSize = 16.sp)
             Spacer(Modifier.height(16.dp))
             Row(
