@@ -48,6 +48,7 @@ class TimeBankRecoveryTest {
     @Test fun refundNeverExceedsReservation() {
         val l = open(30); l.reserveTopUp("a", 1, "d1", "yt", 10)
         assertEquals(0, l.settlePast("d2", 2) { _, _ -> 999 }); assertEquals(20, l.balance())
+        disk = ""   // independent scenario: start from a fresh ledger, not the one settled above
         val m = open(30); m.reserveTopUp("b", 1, "d1", "yt", 10); assertEquals(10, m.settlePast("d2", 2) { _, _ -> -5 }); assertEquals(30, m.balance())
     }
     @Test fun measuredUseSubtractsBaseAndEarnedGrantsAndStudy() {

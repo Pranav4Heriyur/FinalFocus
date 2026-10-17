@@ -210,7 +210,7 @@ class WorkoutDbTest {
     @Test fun sessionSurvivesReopen() {
         val path = java.io.File.createTempFile("workout", ".db").also { it.deleteOnExit() }.absolutePath
         val db1 = JdbcRunner.file(path)
-        WorkoutSchema.upgradeSteps(0, 1).forEach { db1.exec(it) }; WorkoutSeeder.seed(db1)
+        WorkoutSchema.upgradeSteps(0, WorkoutSchema.VERSION).forEach { db1.exec(it) }; WorkoutSeeder.seed(db1)
         val r1 = WorkoutRepo(db1)
         val sid = r1.startSession(WorkoutCatalog.PRESET_PLAN_ID, 1, "g1", "G1 · Lower Body A")
         r1.logSet(sid, "leg_press", 1, 100.0, 10, 8)
