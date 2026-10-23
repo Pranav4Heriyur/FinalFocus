@@ -1,10 +1,15 @@
 package com.pranav.focus.lock
 
 import android.content.Context
+import com.pranav.focus.data.AppClock
 import com.pranav.focus.data.Cond
+import com.pranav.focus.data.PlanDates
+import com.pranav.focus.data.StudyDb
+import com.pranav.focus.data.StudyLogic
 import com.pranav.focus.data.ProgressionPolicy
 import com.pranav.focus.data.Rewards
 import com.pranav.focus.data.Store
+import java.time.LocalDate
 
 /** Verified effort -> minutes. Everything resets at midnight (DayRec is per day). */
 object Earning {
@@ -54,6 +59,23 @@ object Earning {
         }
         if (changed) s.saveDay(d)
         return changed
+    }
+
+    /**
+     * Time Bank minutes for logged study questions (Physics 1.10, Chemistry 0.78, Biology 0.34 min each). This is on top of
+     * the daily 60-question rule. The day's total is rebuilt from the saved logs, so calling it again credits only the new
+     * part, and the ledger id is keyed on that total so a retry can never pay twice.
+     */
+    @Synchronized
+    fun creditStudyQuestions(ctx: Context): Int {
+        val s = Store.get(ctx)
+        val day = s.today()
+        val (from, to) = PlanDates.dayBoundsMs(LocalDate.parse(day), AppClock.zone())
+        val target = StudyLogic.timeBankMinutes(StudyDb.get(ctx).attemptedBySubjectBetween(from, to))
+        val already = s.ledger.earnedFrom(day, "study_q")
+        if (target <= already) return 0
+        s.ledger.earn("studyq:$day:$target", System.currentTimeMillis(), day, target - already, "study_q")
+        return target - already
     }
 
     /**

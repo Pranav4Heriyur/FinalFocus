@@ -375,6 +375,7 @@ private fun QuickLog(d: SData, r: SR.Log, back: () -> Unit, bump: () -> Unit) {
         if (r.taskId.isNotEmpty()) store.putInt("tq_${r.taskId}", store.int("tq_${r.taskId}") + t.attempted)
         val gain = StudyLogic.xpFor(t.attempted, c, store.xpLedger.on(store.today(), "study"))
         if (gain > 0) store.awardXp("study:${logId}", "study", gain)
+        runCatching { Earning.creditStudyQuestions(ctx) }   // per-question Time Bank minutes, on top of the daily 60-question rule
         runCatching { Earning.evaluate(ctx) }
         bump(); back()
       }

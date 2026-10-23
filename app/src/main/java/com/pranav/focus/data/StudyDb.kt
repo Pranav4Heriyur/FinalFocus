@@ -111,6 +111,14 @@ class StudyDb private constructor(ctx: Context) : SQLiteOpenHelper(ctx.applicati
         return out
     }
 
+    /** Attempted questions per subject between two instants. */
+    fun attemptedBySubjectBetween(fromMs: Long, toMs: Long): Map<Subject, Int> =
+        readableDatabase.rawQuery("SELECT subject, COALESCE(SUM(correct + wrong), 0) FROM question_log WHERE ts >= ? AND ts < ? GROUP BY subject", arrayOf(fromMs.toString(), toMs.toString())).use {
+            val out = HashMap<Subject, Int>()
+            while (it.moveToNext()) Subject.values().getOrNull(it.getInt(0))?.let { s -> out[s] = it.getInt(1) }
+            out
+        }
+
     /** Total attempted (correct + wrong) for logs with ts in [fromMs, toMs). */
     fun attemptedBetween(fromMs: Long, toMs: Long): Int =
         readableDatabase.rawQuery("SELECT COALESCE(SUM(correct + wrong), 0) FROM question_log WHERE ts >= ? AND ts < ?", arrayOf(fromMs.toString(), toMs.toString())).use {

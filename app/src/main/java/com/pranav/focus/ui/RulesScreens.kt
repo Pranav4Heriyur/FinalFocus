@@ -18,8 +18,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -350,8 +353,6 @@ fun TimeBankScreen(back: () -> Unit, onRules: () -> Unit, onFocus: () -> Unit, o
     var now by remember { mutableStateOf(LocalDateTime.now()) }
     LaunchedEffect(Unit) { while (true) { kotlinx.coroutines.delay(1000); now = LocalDateTime.now() } }
     var topFor by remember { mutableStateOf<String?>(null) }
-    var topAmt by remember { mutableIntStateOf(0) }
-    var reqId by remember { mutableStateOf("") }
     val day = remember(tick, bump) { store.day() }
     val earned = store.ledger.earnedOn(store.today())
     val spent = store.ledger.spentOn(store.today())
@@ -394,7 +395,7 @@ fun TimeBankScreen(back: () -> Unit, onRules: () -> Unit, onFocus: () -> Unit, o
             store.ledger.all().filter { it.day == store.today() && it.type == com.pranav.focus.data.LedgerType.EARN }
                 .groupBy { it.ref }.mapValues { e -> e.value.sumOf { it.delta } }
         }
-        val sourceLabel = mapOf("focus" to "Focus sessions", "run" to "Run goal", "workout" to "Workout goal", "study" to "Study goal")
+        val sourceLabel = mapOf("focus" to "Focus sessions", "run" to "Run goal", "workout" to "Workout goal", "study" to "Study goal", "study_q" to "Study questions")
         Spacer(Modifier.height(12.dp))
         SectionCard(pad = 14.dp, radius = 22.dp) {
             Caps("Earned today, by source")
@@ -447,10 +448,10 @@ fun TimeBankScreen(back: () -> Unit, onRules: () -> Unit, onFocus: () -> Unit, o
                         Text(appLabel(ctx, r.pkg), color = C.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                         Text(if (rem > 0) "$rem min left today" else "Locked", color = C.Text2, fontSize = 13.sp)
                     }
-                    val can = bank >= 10
+                    val can = bank >= 1
                     Text("Top up", color = if (can) C.Black else C.Text3, fontSize = 13.sp, fontWeight = FontWeight.Medium,
                         modifier = Modifier.clip(CircleShape).background(if (can) C.White else C.Track)
-                            .clickable(enabled = can) { topFor = r.pkg; topAmt = 0; reqId = java.util.UUID.randomUUID().toString() }
+                            .clickable(enabled = can) { topFor = r.pkg }
                             .padding(horizontal = 14.dp, vertical = 8.dp))
                 }
             }
@@ -490,19 +491,7 @@ fun TimeBankScreen(back: () -> Unit, onRules: () -> Unit, onFocus: () -> Unit, o
         Spacer(Modifier.height(100.dp))
     }
     topFor?.let { pkg ->
-        FocusSheet({ topFor = null }) {
-            Text("Top up ${appLabel(ctx, pkg)}", color = C.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-            Text("Nothing is spent until you confirm. Unused minutes are refunded at midnight.", color = C.Text2, fontSize = 13.sp)
-            Spacer(Modifier.height(12.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                com.pranav.focus.data.Allowance.topUpOptions(bank).forEach { m -> Pill("$m min", filled = topAmt == m) { topAmt = m } }
-            }
-            Spacer(Modifier.height(12.dp))
-            PrimaryButton(if (topAmt == 0) "Choose an amount" else "Spend $topAmt min ($bank → ${bank - topAmt})", enabled = topAmt > 0) {
-                Earning.unlockFromPool(ctx, pkg, topAmt, reqId); topFor = null; bump++; AppState.dataTick++
-            }
-            GhostButton("Cancel") { topFor = null }
-        }
+        TopUpSheet(pkg, bank, onClose = { topFor = null; bump++; AppState.dataTick++ })
     }
     if (help) AlertDialog(
         onDismissRequest = { help = false },
@@ -520,11 +509,68 @@ fun TimeBankScreen(back: () -> Unit, onRules: () -> Unit, onFocus: () -> Unit, o
 // --------------------------------------------------------------------------------------
 // Blocked screen
 // --------------------------------------------------------------------------------------
+/**
+ * Spend any amount from the Time Bank on one app. Nothing is charged until the user confirms; the ledger reservation
+ * is the grant. [onSpent] runs only after a confirmed spend, [onClose] after either outcome.
+ */
+@Composable
+fun TopUpSheet(pkg: String, bank: Int, onClose: () -> Unit, onSpent: (Int) -> Unit = {}) {
+    val ctx = LocalContext.current
+    val reqId = remember(pkg) { java.util.UUID.randomUUID().toString() }
+    // Kept as text so the user can type any amount; the slider and quick picks write into the same field.
+    var txt by remember(pkg) { mutableStateOf(minOf(10, bank).coerceAtLeast(1).toString()) }
+    val amt = txt.toIntOrNull() ?: 0
+    val valid = amt in 1..bank
+    fun setAmt(m: Int) { txt = m.coerceIn(1, maxOf(bank, 1)).toString() }
+    FocusSheet(onClose) {
+        Text("Top up ${appLabel(ctx, pkg)}", color = C.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+        Text("Nothing is spent until you confirm. Unused minutes are refunded at midnight.", color = C.Text2, fontSize = 13.sp)
+        Spacer(Modifier.height(12.dp))
+        if (bank <= 0) {
+            Text("Your Time Bank is empty. Focus, run, work out or study to earn minutes.", color = C.Text2, fontSize = 14.sp)
+        } else {
+            OutlinedTextField(
+                value = txt,
+                onValueChange = { v -> txt = v.filter { it.isDigit() }.take(4) },
+                label = { Text("Minutes (1–$bank)") },
+                singleLine = true,
+                isError = txt.isNotEmpty() && !valid,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth(),
+                colors = fieldColors(),
+            )
+            Spacer(Modifier.height(10.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                com.pranav.focus.data.Allowance.topUpOptions(bank).forEach { m -> Pill("$m min", filled = amt == m) { setAmt(m) } }
+            }
+            if (bank > 1) Slider(
+                value = amt.coerceIn(1, bank).toFloat(), valueRange = 1f..bank.toFloat(), steps = bank - 2,
+                onValueChange = { v -> setAmt((v + 0.5f).toInt()) },
+                modifier = Modifier.padding(top = 8.dp),
+                colors = SliderDefaults.colors(thumbColor = C.White, activeTrackColor = C.White, inactiveTrackColor = C.Track),
+            )
+            Spacer(Modifier.height(8.dp))
+            PrimaryButton(if (valid) "Spend $amt min ($bank → ${bank - amt})" else "Enter 1–$bank min", enabled = valid) {
+                Earning.unlockFromPool(ctx, pkg, amt, reqId)
+                onSpent(amt); onClose()
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        GhostButton("Cancel") { onClose() }
+    }
+}
+
 @Composable
 fun BlockedScreen(pkg: String, onFocus: () -> Unit, onBank: () -> Unit, onHome: () -> Unit) {
     val ctx = LocalContext.current
     val store = remember { Store.get(ctx) }
     val always = pkg in store.blockedAlways
+    val hasRule = store.appRules.any { it.pkg == pkg }
+    val sessionBlock = store.sessionActive && pkg in store.blockedDuring
+    // A top-up can only lift a time limit. It cannot lift an always-block or a focus-session block.
+    val canTopUp = hasRule && !always && !sessionBlock
+    var topUp by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         AppIcon(pkg, 72.dp)
         Spacer(Modifier.height(20.dp))
@@ -535,7 +581,18 @@ fun BlockedScreen(pkg: String, onFocus: () -> Unit, onBank: () -> Unit, onHome: 
         Spacer(Modifier.height(32.dp))
         PrimaryButton("Start focus session") { onFocus() }
         Spacer(Modifier.height(10.dp))
+        if (canTopUp && store.bankMinutes > 0) {
+            PrimaryButton("Top up ${appLabel(ctx, pkg)}") { topUp = true }
+            Spacer(Modifier.height(10.dp))
+        }
         if (!always) { GhostButton("Open Time Bank") { onBank() }; Spacer(Modifier.height(10.dp)) }
         GhostButton("Go home") { onHome() }
     }
+    if (topUp) TopUpSheet(pkg, store.bankMinutes, onClose = { topUp = false }, onSpent = {
+        // Enforcer now allows the app, so hand the user straight back to it.
+        AppState.blockedPkg = null
+        ctx.packageManager.getLaunchIntentForPackage(pkg)?.let { i ->
+            runCatching { ctx.startActivity(i.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+        }
+    })
 }

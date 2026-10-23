@@ -14,7 +14,8 @@ object Enforcer {
         val rule = store.appRules.firstOrNull { it.pkg == pkg } ?: return null
         val total = UsageHelper.usedTodayMs(ctx)[pkg] ?: 0L
         val base = if (rule.locked) rule.baseMin else rule.limitMin
-        val sp = Allowance.split(total, store.studyMs(pkg), base, (store.day().alloc[pkg] ?: 0) + store.ledger.topUpGrantedOn(store.today(), pkg), rule.limitMin)
+        val sp = Allowance.split(total, store.studyMs(pkg), base, store.day().alloc[pkg] ?: 0, rule.limitMin,
+            topUpMin = store.ledger.topUpGrantedOn(store.today(), pkg))
         // snapshot for top-up settlement at rollover (monotonic within the day)
         val k = "bankuse_${store.today()}_$pkg"
         if (sp.bankUsedMin > store.int(k)) store.putInt(k, sp.bankUsedMin)

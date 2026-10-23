@@ -95,6 +95,8 @@ class Ledger(initial: List<LedgerEvent>, private val persist: (List<LedgerEvent>
     @Synchronized fun spentOn(day: String): Int =
         events.filter { it.day == day && (it.type == LedgerType.TOPUP_RESERVE || it.type == LedgerType.TOPUP_REFUND) }.sumOf { -it.delta }
     @Synchronized fun earnedOn(day: String): Int = events.filter { it.day == day && it.type == LedgerType.EARN }.sumOf { it.delta }
+    /** Minutes already credited on [day] under one earn source (for example "study_q"). */
+    @Synchronized fun earnedFrom(day: String, ref: String): Int = events.filter { it.day == day && it.type == LedgerType.EARN && it.ref == ref }.sumOf { it.delta }
     @Synchronized fun penaltyOn(day: String): Int = events.filter { it.day == day && it.type == LedgerType.PENALTY }.sumOf { -it.delta }
 
     companion object {

@@ -4,8 +4,9 @@ import java.time.LocalDate
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-enum class Subject(val label: String, val maxMarks: Int) {
-    PHYSICS("Physics", 180), CHEMISTRY("Chemistry", 180), BIOLOGY("Biology", 360);
+/** [minPerQuestionHundredths] = Time Bank minutes earned per logged question, in hundredths: Physics 1.10, Chemistry 0.78, Biology 0.34. */
+enum class Subject(val label: String, val maxMarks: Int, val minPerQuestionHundredths: Int) {
+    PHYSICS("Physics", 180, 110), CHEMISTRY("Chemistry", 180, 78), BIOLOGY("Biology", 360, 34);
     companion object { fun byLabel(s: String) = values().firstOrNull { it.label.equals(s, true) } }
 }
 
@@ -70,6 +71,9 @@ object StudyLogic {
         items.filter { it.second.attempted >= floor }.sortedBy { it.second.accuracy() }
 
     private fun Tally.accuracy() = StudyLogic.accuracy(correct, wrong)
+
+    /** Whole Time Bank minutes for a day's questions: sum of (questions x rate), kept in hundredths, then floored. */
+    fun timeBankMinutes(bySubject: Map<Subject, Int>): Int = bySubject.entries.sumOf { (s, n) -> n.coerceAtLeast(0) * s.minPerQuestionHundredths } / 100
 
     fun xpFor(attempted: Int, correct: Int, alreadyToday: Int): Int =
         min(attempted + 2 * correct, (XP_DAILY_CAP - alreadyToday).coerceAtLeast(0))

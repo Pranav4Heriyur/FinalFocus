@@ -33,7 +33,22 @@ class DataIntegrityTest {
     @Test fun exhaustionThenOverageIsBankFunded() {
         val s = Allowance.split(65 * 60_000L, 0, 50, 15, 120)
         assertEquals(50, s.baseUsedMin); assertEquals(15, s.bankUsedMin); assertEquals(0, s.remainingMin); assertEquals(0, s.overMin)
-        assertEquals(listOf(10, 15, 30), Allowance.topUpOptions(100)); assertEquals(listOf(10), Allowance.topUpOptions(12))
+        assertEquals(listOf(1, 5, 10, 15, 30), Allowance.topUpOptions(100)); assertEquals(listOf(1, 5, 10), Allowance.topUpOptions(12))
+        assertEquals(emptyList<Int>(), Allowance.topUpOptions(0))
+    }
+    @Test fun topUpWorksAfterDailyCapIsUsed() {
+        // Base 30 = cap 30, all used. A 3-minute top-up must reopen the app instead of being swallowed by the cap.
+        val capped = Allowance.split(30 * 60_000L, 0, 30, 0, 30)
+        assertEquals(0, capped.remainingMin)
+        val topped = Allowance.split(30 * 60_000L, 0, 30, 0, 30, topUpMin = 3)
+        assertEquals(3, topped.remainingMin); assertEquals(0, topped.bankUsedMin)
+        val spent = Allowance.split(33 * 60_000L, 0, 30, 0, 30, topUpMin = 3)
+        assertEquals(0, spent.remainingMin); assertEquals(3, spent.bankUsedMin); assertEquals(0, spent.overMin)
+    }
+    @Test fun earnedUnlocksStillRespectDailyCap() {
+        // Free earned grants keep the cap; only paid top-ups sit above it.
+        val s = Allowance.split(60 * 60_000L, 0, 0, 100, 30)
+        assertEquals(0, s.remainingMin); assertEquals(30, s.overMin)
     }
     @Test fun studyTimeNeverConsumesAllowance() {
         val s = Allowance.split(80 * 60_000L, 40 * 60_000L, 50, 0, 120)
